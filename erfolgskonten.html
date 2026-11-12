@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erfolgskonten: Was das Eigenkapital verändert | BBS Wechloy</title>
+<style>
+:root{
+  --blau:#005197; --blau-dunkel:#003c70; --blau-hell:#ebf1f7;
+  --petrol:#138ba3; --petrol-hell:#e3f3f6;
+  --gruen:#7b8616; --gruen-akzent:#a3b11d; --gruen-hell:#f2f4df;
+  --grau:#5b6f78;
+  --tinte:#1a1a18; --text-leise:#4a5763; --flaeche:#f5f7f9; --weiss:#fff; --linie:#c3ccd2;
+  --gut:#1b7340; --gut-hell:#e7f4ec; --fehler:#b42318; --fehler-hell:#fdecea;
+  --hinweis:#8a5300; --hinweis-hell:#fff4e0; --fokus:#f2a900; --radius:6px;
+  --schrift:Arial,Helvetica,"Segoe UI",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--weiss);color:var(--tinte);font-family:var(--schrift);font-size:16px;line-height:1.5}
+.seite{max-width:920px;margin:0 auto;padding:0 1rem 2rem}
+.kopf{border-top:6px solid var(--blau);padding:1rem 0 .8rem;border-bottom:1px solid var(--linie);margin-bottom:1rem}
+.kontext{margin:0 0 .2rem;color:var(--blau);font-size:.85rem;font-weight:700;letter-spacing:.02em}
+h1{font-size:clamp(1.3rem,1.05rem + 1.2vw,1.7rem);line-height:1.2;margin:0}
+h2{font-size:1.2rem;margin:.2rem 0 .6rem;color:var(--blau)}
+h3{font-size:1.02rem;margin:1.2rem 0 .4rem}
+p{max-width:75ch;margin:.5rem 0}
+.situation{background:var(--blau-hell);border-left:6px solid var(--blau);padding:.8rem 1rem;border-radius:0 var(--radius) var(--radius) 0;margin:0 0 1rem}
+.situation p{margin:.3rem 0}
+.auftrag{font-weight:700}
+/* Stationen-Navigation */
+.stationen{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem;padding:0;list-style:none}
+.stationen button{background:var(--weiss);color:var(--blau);border:2px solid var(--linie);font-weight:700;font-size:.85rem;padding:.35rem .7rem;min-height:40px}
+.stationen button[aria-current="step"]{border-color:var(--blau);background:var(--blau);color:var(--weiss)}
+.stationen button.erledigt::after{content:" ✓";color:var(--gut)}
+.stationen button[aria-current="step"].erledigt::after{color:var(--weiss)}
+.station{display:none}
+.station.aktiv{display:block}
+.stationskopf{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.4rem}
+.stationskopf .nr{background:var(--blau);color:#fff;border-radius:4px;padding:.05rem .55rem;font-weight:700;font-size:.85rem}
+.stationskopf .zeit{color:var(--text-leise);font-size:.85rem}
+/* Häppchen */
+.happen{background:var(--flaeche);border:1px solid var(--linie);border-left:6px solid var(--petrol);border-radius:var(--radius);padding:.8rem 1rem;margin:.8rem 0}
+.happen .titel{font-weight:700;color:var(--petrol);margin:0 0 .3rem}
+.happen ul{margin:.3rem 0 .3rem 1.1rem;padding:0}
+.merke{background:var(--gruen-hell);border-left:6px solid var(--gruen-akzent);border-radius:var(--radius);padding:.7rem 1rem;margin:.8rem 0}
+.merke .titel{font-weight:700;margin:0 0 .2rem}
+.aufgabe{border:2px solid var(--blau);border-radius:var(--radius);padding:.8rem 1rem;margin:1rem 0;background:#fff}
+.aufgabe>.titel{font-weight:700;color:var(--blau);margin:0 0 .4rem}
+.baustein{border:2px dashed var(--gruen-akzent);border-radius:var(--radius);padding:.8rem 1rem;margin:1rem 0;background:#fbfcf3}
+.baustein>.titel{font-weight:700;color:var(--gruen);margin:0 0 .4rem}
+.baustein>.titel::before{content:"📄 "}
+/* Knöpfe */
+button,.knopf{font:inherit;font-weight:700;border-radius:var(--radius);padding:.55rem 1rem;min-height:44px;cursor:pointer;border:2px solid var(--blau);background:var(--blau);color:var(--weiss)}
+button:hover{background:var(--blau-dunkel);border-color:var(--blau-dunkel)}
+button.zweit{background:var(--weiss);color:var(--blau)}
+button.zweit:hover{background:var(--blau-hell)}
+button.gruen{background:var(--gruen);border-color:var(--gruen)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.option{display:block;width:100%;text-align:left;background:var(--weiss);color:var(--tinte);border:2px solid var(--linie);font-weight:400;margin:.35rem 0}
+.option:hover{border-color:var(--blau);background:var(--flaeche);color:var(--tinte)}
+.option.richtig{border-color:var(--gut);background:var(--gut-hell)}
+.option.falsch{border-color:var(--fehler);background:var(--fehler-hell)}
+.option.richtig::before{content:"✓ ";font-weight:700;color:var(--gut)}
+.option.falsch::before{content:"✗ ";font-weight:700;color:var(--fehler)}
+.chip{display:inline-block;background:var(--weiss);color:var(--tinte);border:2px solid var(--linie);font-weight:700;padding:.35rem .7rem;min-height:40px;margin:.2rem;border-radius:20px}
+.chip:hover{background:var(--blau-hell);color:var(--tinte)}
+.chip[aria-pressed="true"]{border-color:var(--blau);background:var(--blau);color:#fff}
+.chip.verbraucht{opacity:.35}
+:focus-visible{outline:3px solid var(--fokus);outline-offset:2px}
+input,select,textarea{font:inherit;padding:.4rem .5rem;border:2px solid var(--linie);border-radius:var(--radius);min-height:42px;background:#fff;color:var(--tinte);max-width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--blau)}
+select.ok,input.ok{border-color:var(--gut);background:var(--gut-hell)}
+select.nok,input.nok{border-color:var(--fehler);background:var(--fehler-hell)}
+.betrag{width:9.5rem;text-align:right}
+.rueckmeldung{margin:.8rem 0;padding:.7rem 1rem;border-radius:var(--radius);border-left:6px solid}
+.rueckmeldung:empty{display:none}
+.rueckmeldung.gut{background:var(--gut-hell);border-color:var(--gut)}
+.rueckmeldung.fehler{background:var(--fehler-hell);border-color:var(--fehler)}
+.rueckmeldung.info{background:var(--hinweis-hell);border-color:var(--hinweis)}
+.rueckmeldung .marke{font-weight:700;margin-right:.35rem}
+.aktionen{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.9rem;align-items:center}
+.weiter{margin-top:1.2rem;display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}
+.nur-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.luecke{line-height:2.3}
+.luecke select{min-height:38px;padding:.2rem .4rem;margin:0 .15rem}
+/* Tabellen */
+.tabelle-wrap{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--linie);padding:.4rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--blau);color:#fff}
+td.zahl,th.zahl{text-align:right;white-space:nowrap}
+tr.markiert td{background:var(--fehler-hell)}
+tr.gefunden td{background:var(--gut-hell)}
+/* T-Konto */
+.konten{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:1rem 1.6rem;margin:.6rem 0}
+.tkonto{font-size:.88rem;min-width:0}
+.tkonto .kopfzeile{display:grid;grid-template-columns:auto 1fr auto;border-bottom:2px solid var(--tinte);font-weight:700;padding:0 .2rem .15rem}
+.tkonto .kopfzeile .name{text-align:center;color:var(--blau)}
+.tkonto .koerper{display:grid;grid-template-columns:1fr 1fr}
+.tkonto .seite-soll{border-right:2px solid var(--tinte);padding:.25rem .35rem .25rem 0;min-height:3.2rem}
+.tkonto .seite-haben{padding:.25rem 0 .25rem .35rem;min-height:3.2rem}
+.tkonto .posten{display:flex;justify-content:space-between;gap:.3rem;padding:.05rem 0}
+.tkonto .posten .bez{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tkonto .posten .bt{white-space:nowrap;font-variant-numeric:tabular-nums}
+.tkonto .posten.saldo{color:var(--petrol);font-weight:700}
+.tkonto .posten.neu{animation:aufleuchten 1.2s ease}
+@keyframes aufleuchten{from{background:var(--fokus)}to{background:transparent}}
+.tkonto .summe{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--tinte)}
+.tkonto .summe span{text-align:right;padding:.1rem .35rem;font-weight:700;border-bottom:3px double var(--tinte);font-variant-numeric:tabular-nums}
+.tkonto .summe span:first-child{border-right:2px solid var(--tinte)}
+.ziel{display:block;width:100%;min-height:2.6rem;margin:.15rem 0;border:2px dashed var(--linie);background:var(--flaeche);color:var(--text-leise);font-weight:400;font-size:.85rem;padding:.3rem}
+.ziel:hover{border-color:var(--blau);background:var(--blau-hell);color:var(--tinte)}
+.ziel.belegt{border-style:solid;border-color:var(--blau);background:var(--blau-hell);color:var(--tinte);font-weight:700}
+.ziel.richtig{border-color:var(--gut);background:var(--gut-hell)}
+.ziel.falsch{border-color:var(--fehler);background:var(--fehler-hell)}
+.seitenwahl{width:100%;min-height:2.2rem;margin-top:.3rem;border:2px dashed var(--linie);background:#fff;color:var(--blau);font-size:.8rem;padding:.2rem}
+.seitenwahl:hover{background:var(--blau-hell);color:var(--blau)}
+/* Beleg */
+.beleg{max-width:420px;border:1px solid #b9a77a;background:#fffbea;border-radius:4px;padding:.6rem .9rem;margin:.6rem 0;box-shadow:2px 2px 0 #e9dfbf;font-size:.95rem}
+.beleg .belegkopf{display:flex;justify-content:space-between;border-bottom:1px solid #b9a77a;font-weight:700;margin-bottom:.3rem;gap:.5rem}
+.beleg .belegkopf small{font-weight:400}
+.rolle{display:inline-block;padding:.15rem .6rem;border-radius:4px;color:#fff;font-weight:700;font-size:.85rem}
+.rolle.a{background:var(--petrol)} .rolle.b{background:var(--gruen)}
+.buchungszeile{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}
+.diagnose td,.diagnose th{font-size:.9rem}
+.karte-konto{border:1px solid var(--linie);border-left:6px solid var(--petrol);border-radius:var(--radius);padding:.5rem .8rem;background:var(--flaeche)}
+.karte-konto .titel{font-weight:700;color:var(--petrol);margin:.1rem 0 .3rem}
+.karte-konto p{margin:.35rem 0}
+.zaehler{font-size:.9rem;color:var(--text-leise)}
+.zweispaltig{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:640px){.zweispaltig{grid-template-columns:1fr}}
+.bilanz{border:2px solid var(--tinte);border-radius:2px;margin:.6rem 0}
+.bilanz .btitel{text-align:center;font-weight:700;border-bottom:2px solid var(--tinte);padding:.2rem;background:var(--flaeche)}
+.bilanz .bkoerper{display:grid;grid-template-columns:1fr 1fr}
+.bilanz .bseite{padding:.3rem .5rem}
+.bilanz .bseite:first-child{border-right:2px solid var(--tinte)}
+.bilanz .bseite .kopf2{font-weight:700;text-align:center;border-bottom:1px solid var(--linie);margin-bottom:.2rem}
+.bilanz .bsumme{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--tinte);font-weight:700}
+.bilanz .bsumme span{padding:.2rem .5rem;text-align:right}
+.bilanz .bsumme span:first-child{border-right:2px solid var(--tinte)}
+.fuss{margin-top:2rem;padding-top:.7rem;border-top:1px solid var(--linie);font-size:.8rem;color:var(--text-leise)}
+.fuss p{margin:.15rem 0;max-width:none}
+.schonfertig{border-left:6px solid var(--gruen-akzent);background:var(--gruen-hell);padding:.7rem 1rem;border-radius:var(--radius);margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;color:var(--blau)}
+/* Informationsschrift */
+#infoschrift-vorschau{border:1px solid var(--linie);border-radius:var(--radius);padding:1rem;background:#fff}
+.is-kopf{border-bottom:3px solid var(--blau);margin-bottom:.6rem;padding-bottom:.3rem}
+.is-kopf .is-titel{font-size:1.3rem;font-weight:700;color:var(--blau)}
+.is-kopf .is-zeile{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:.85rem;color:var(--text-leise)}
+.is-abschnitt{display:grid;grid-template-columns:11rem 1fr;border-bottom:1px solid var(--linie);padding:.55rem 0;gap:.8rem;break-inside:avoid}
+.is-abschnitt .is-begriff{font-weight:700;color:var(--blau)}
+.is-abschnitt .is-offen{color:var(--text-leise);font-style:italic}
+.is-abschnitt ul{margin:.2rem 0 .2rem 1.1rem;padding:0}
+.is-abschnitt .tkonto{max-width:320px;margin:.4rem 0}
+@media (max-width:600px){.is-abschnitt{grid-template-columns:1fr;gap:.2rem}}
+#druckbereich{display:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media print{
+  @page{size:A4;margin:15mm 14mm}
+  body{font-size:11pt}
+  body.drucken .seite{display:none}
+  body.drucken #druckbereich{display:block}
+  #druckbereich .tabelle-wrap{overflow:visible}
+  #druckbereich th{background:#fff!important;color:#000!important;border-bottom:2px solid #000}
+  .is-abschnitt{grid-template-columns:42mm 1fr}
+  .druckfuss{margin-top:8mm;font-size:8pt;color:#555;border-top:1px solid #999;padding-top:2mm}
+}
+/* Aufbau des Buchungssatzes */
+.bs-aufbau{display:flex;flex-wrap:wrap;align-items:stretch;gap:.4rem;margin:.6rem 0}
+.bs-teil{flex:1 1 180px;background:var(--weiss);border:2px solid var(--blau);border-radius:var(--radius);padding:.5rem .7rem;text-align:center}
+.bs-teil.bs-mitte{flex:0 1 130px;border-color:var(--petrol);background:var(--petrol-hell)}
+.bs-wort{display:block;font-weight:700;font-size:1.08rem}
+.bs-teil small{display:block;color:var(--text-leise);line-height:1.35;margin-top:.2rem}
+.bs-satz{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:1.05rem;margin:.6rem 0}
+.bs-platz{min-width:9rem;padding:.35rem .7rem;border:2px dashed var(--linie);border-radius:var(--radius);text-align:center;font-weight:700;color:var(--text-leise)}
+.bs-platz.ok{border-style:solid;border-color:var(--gut);background:var(--gut-hell);color:var(--tinte)}
+.bs-an{font-weight:700;color:var(--petrol)}
+@media (max-width:560px){.bs-aufbau{flex-direction:column}.bs-teil,.bs-teil.bs-mitte{flex:1 1 auto}.bs-satz{flex-direction:column;align-items:stretch}.bs-an{text-align:center}}
+
+</style>
+</head>
+<body>
+<div class="seite">
+  <header class="kopf">
+    <p class="kontext">Bankkaufleute · Lernfeld 7 · Lernsituation 5 · Teil 8 · allein oder zu zweit</p>
+    <h1>Erfolgskonten: Was das Eigenkapital verändert</h1>
+  </header>
+  <main id="inhalt">
+    <section class="situation" aria-label="Situation">
+<p>Frau Becker kommt an Ihren Platz: „Im Haus der Bank haben Sie gesehen, dass die Gehaltszahlung und viele andere Belege unser Eigenkapital verändern. Mit unseren Bestandskonten können wir sie aber nicht so buchen, dass man sieht, wodurch sich das Eigenkapital ändert. Wie Banken das lösen, erarbeiten Sie jetzt selbst.“</p>
+<p class="auftrag">Arbeiten Sie die Stationen 1 bis 4 der Reihe nach durch, allein oder zu zweit. Was Sie erarbeiten, sammelt sich automatisch in einer Informationsschrift. Am Ende laden Sie sie als PDF herunter. Sie brauchen sie für die Prüfbuchungen und die Hausaufgabe. Wer danach noch Zeit hat, macht mit „Fehler finden“ weiter.</p>
+    </section>
+    <nav aria-label="Stationen"><ol class="stationen" id="stationen"></ol></nav>
+    <div id="element"></div>
+  </main>
+  <footer class="fuss">
+    <p>BBS Wechloy Oldenburg · Bankkaufleute · Lernfeld 7, Lernsituation 5. Modellunternehmen: Minibank AG (fiktiv), eigene Beispielfälle. Stand: Schuljahr 2026/27.</p>
+    <p>Erstellt mit KI-Unterstützung, fachlich geprüft durch die Lehrkraft. Ihre Eingaben bleiben auf diesem Gerät und werden nicht gesendet.</p>
+    <p><button type="button" class="zweit" id="neustart">Neu starten</button></p>
+  </footer>
+</div>
+<div id="druckbereich" aria-hidden="true"></div>
+<script>
+/* ===== Lernelement-Grundfunktionen (Vorlage BBS Wechloy, nicht entfernen) ===== */
+const Lernelement = (() => {
+  const KONFIG = { bestehensgrenze: 0.6 };
+  let api = null, beendet = false;
+  function findeApi(w) { let t = 0; try { while (w && !w.API && w.parent && w.parent !== w && t < 10) { w = w.parent; t++; } return (w && w.API) ? w.API : null; } catch (e) { return null; } }
+  function start() { api = findeApi(window) || (window.opener ? findeApi(window.opener) : null); if (api) { try { api.LMSInitialize(""); api.LMSCommit(""); } catch (e) { api = null; } } }
+  function melden(p, max) { if (!api || !max) return false; const pr = Math.round(p / max * 100); try { api.LMSSetValue("cmi.core.score.raw", String(pr)); api.LMSSetValue("cmi.core.lesson_status", pr / 100 >= KONFIG.bestehensgrenze ? "passed" : "failed"); api.LMSCommit(""); return true; } catch (e) { return false; } }
+  function beenden() { if (api && !beendet) { try { api.LMSFinish(""); } catch (e) {} beendet = true; } }
+  window.addEventListener("pagehide", beenden);
+  start();
+  function mischen(l) { const a = l.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  // Rückmeldung in einer Box direkt bei der Aufgabe (Handy!). Farbe nie allein: Marke mit Text.
+  function rueckmeldung(boxEl, art, text) {
+    const marke = { gut: "✓ Richtig.", fehler: "✗ Noch nicht.", info: "Hinweis:" }[art] || "";
+    boxEl.className = "rueckmeldung " + art; boxEl.innerHTML = "";
+    const m = document.createElement("span"); m.className = "marke"; m.textContent = marke;
+    const t = document.createElement("span"); t.innerHTML = text; boxEl.append(m, t);
+  }
+  function merken(k, d) { try { localStorage.setItem(k, JSON.stringify(d)); } catch (e) {} }
+  function laden(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  function vergessen(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function geld(b) { return b.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €"; }
+  return { KONFIG, melden, mischen, rueckmeldung, merken, laden, vergessen, geld, istScorm: () => !!api };
+})();
+
+/* ===== Gemeinsame Bausteine LS 04 ===== */
+const geld = Lernelement.geld;
+function el(tag, attrs, ...kinder) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") e.className = v; else if (k === "html") e.innerHTML = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kinder.flat()) { if (k === null || k === undefined || k === false) continue; e.append(k instanceof Node ? k : document.createTextNode(String(k))); }
+  return e;
+}
+function knopf(text, onclick, klasse) { return el("button", { type: "button", class: klasse || null, onclick }, text); }
+function box() { return el("div", { class: "rueckmeldung", role: "status", "aria-live": "polite" }); }
+function zahlLesen(s) {
+  if (s === null || s === undefined) return NaN;
+  s = String(s).trim().replace(/\s|€|EUR/gi, "");
+  if (!s) return NaN;
+  if (/,\d{1,2}$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  else s = s.replace(/,/g, ".");
+  return Number(s);
+}
+
+/* Konten der Minibank AG (Sicht der Bank) */
+const KONTEN = {
+  "Kasse": { art: "A", info: "Bargeld im Tresor und in den Automaten" },
+  "Bundesbank": { art: "A", info: "Guthaben der Minibank bei der Deutschen Bundesbank" },
+  "Debitoren": { art: "A", info: "Forderungen an Kundinnen und Kunden, z. B. überzogene Girokonten und Kredite" },
+  "Wertpapiere": { art: "A", info: "Wertpapiere im Eigenbestand der Bank" },
+  "BGA": { art: "A", info: "Betriebs- und Geschäftsausstattung, z. B. Computer, Geldautomaten, Möbel" },
+  "Kreditoren": { art: "P", info: "Guthaben auf Girokonten: Verbindlichkeiten der Bank gegenüber der Kundschaft" },
+  "Spareinlagen": { art: "P", info: "Guthaben auf Sparkonten: Verbindlichkeiten der Bank" },
+  "Eigenkapital": { art: "P", info: "Kapital der Eigentümer" }
+};
+const ART_TEXT = { A: "Aktivkonto", P: "Passivkonto" };
+function veraenderung(konto, seite) { // seite "S" | "H"
+  const a = KONTEN[konto].art;
+  return (a === "A") === (seite === "S") ? "Mehrung" : "Minderung";
+}
+function muster(soll, haben) {
+  const s = KONTEN[soll].art, h = KONTEN[haben].art;
+  if (s === "A" && h === "A") return "Aktivtausch";
+  if (s === "P" && h === "P") return "Passivtausch";
+  if (s === "A" && h === "P") return "Aktiv-Passiv-Mehrung";
+  return "Aktiv-Passiv-Minderung";
+}
+function buchungssatz(soll, haben, betrag) { return soll + " " + geld(betrag) + " an " + haben + " " + geld(betrag); }
+
+/* Dreischritt-Tabelle für eine Buchung */
+function dreischrittTabelle(fall) {
+  const zeile = (k, s) => el("tr", null, el("td", null, k), el("td", null, ART_TEXT[KONTEN[k].art]), el("td", null, veraenderung(k, s)), el("td", null, s === "S" ? "Soll" : "Haben"));
+  return el("div", { class: "tabelle-wrap" }, el("table", { class: "diagnose" },
+    el("thead", null, el("tr", null, el("th", null, "① Konto"), el("th", null, "Aktiv oder Passiv?"), el("th", null, "② Mehrung oder Minderung?"), el("th", null, "③ Seite"))),
+    el("tbody", null, zeile(fall.soll, "S"), zeile(fall.haben, "H"))));
+}
+/* Diagnose: Was genau ist falsch? Stufe 1 = Hinweis, Stufe 2 = Lösung */
+function diagnose(fall, s, h, b, stufe) {
+  const hinweise = [];
+  const richtigeKonten = [fall.soll, fall.haben];
+  const gewaehlt = [s, h];
+  if (s === fall.haben && h === fall.soll) {
+    hinweise.push("Sie haben die richtigen Konten gewählt, aber Soll und Haben vertauscht. Prüfen Sie Schritt ②: Wird " + fall.soll + " mehr oder weniger? Und was heißt das für die Seite bei einem " + ART_TEXT[KONTEN[fall.soll].art] + "? Vor das „an“ gehört das Konto, das im Soll gebucht wird.");
+  } else {
+    const falsch = gewaehlt.filter(k => k && !richtigeKonten.includes(k));
+    if (!s || !h) hinweise.push("Wählen Sie ein Konto für das Soll und eines für das Haben.");
+    else if (s === h) hinweise.push("Soll und Haben sind dasselbe Konto. Ein Geschäftsfall betrifft hier zwei verschiedene Konten.");
+    else if (falsch.length) {
+      hinweise.push("Schritt ①: " + falsch.join(" und ") + (falsch.length > 1 ? " sind" : " ist") + " hier nicht betroffen. Fragen Sie: Wo liegt das Geld vorher, wo liegt es nachher?");
+    } else {
+      hinweise.push("Ein Konto steht auf der falschen Seite. Gehen Sie Schritt ② und ③ für beide Konten einzeln durch.");
+    }
+  }
+  if (!isNaN(b) && Math.abs(b - fall.betrag) > 0.004) hinweise.push("Der Betrag stimmt nicht. Schauen Sie noch einmal auf den Beleg.");
+  if (isNaN(b)) hinweise.push("Tragen Sie den Betrag ein.");
+  const div = el("div", null, el("p", null, hinweise.join(" ")));
+  if (stufe >= 2) {
+    div.append(el("p", null, el("strong", null, "So geht es: ")), dreischrittTabelle(fall),
+      el("p", null, "Buchungssatz: ", el("strong", null, buchungssatz(fall.soll, fall.haben, fall.betrag))));
+  }
+  return div;
+}
+
+/* T-Konto als Element. soll/haben: [{bez, betrag, klasse}] */
+function tkonto(name, soll, haben, opt) {
+  opt = opt || {};
+  const posten = (p) => el("div", { class: "posten" + (p.klasse ? " " + p.klasse : "") }, el("span", { class: "bez" }, p.bez), el("span", { class: "bt" }, p.betrag === undefined || p.betrag === null ? "" : geld(p.betrag)));
+  const sS = el("div", { class: "seite-soll" }, soll.map(posten));
+  const sH = el("div", { class: "seite-haben" }, haben.map(posten));
+  if (opt.sollExtra) sS.append(opt.sollExtra);
+  if (opt.habenExtra) sH.append(opt.habenExtra);
+  const k = el("div", { class: "tkonto", role: "group", "aria-label": "Konto " + name },
+    el("div", { class: "kopfzeile" }, el("span", null, "S"), el("span", { class: "name" }, name), el("span", null, "H")),
+    el("div", { class: "koerper" }, sS, sH));
+  if (opt.summe !== undefined && opt.summe !== null) k.append(el("div", { class: "summe" }, el("span", null, geld(opt.summe)), el("span", null, geld(opt.summe))));
+  return k;
+}
+
+/* Multiple-Choice mit Rückmeldung je Option. optionen: [{t, richtig, fb}] */
+function mc(frage, optionen, beiRichtig, misch = true) {
+  const wrap = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, frage.titel || "Frage"), el("p", { html: frage.text }));
+  const fb = box(); let geloest = false;
+  const liste = misch ? Lernelement.mischen(optionen) : optionen;
+  const knoepfe = liste.map(o => {
+    const b = el("button", { type: "button", class: "option" }, o.t);
+    b.addEventListener("click", () => {
+      if (geloest) return;
+      if (o.richtig) {
+        geloest = true; b.classList.add("richtig"); knoepfe.forEach(x => x.disabled = x !== b);
+        Lernelement.rueckmeldung(fb, "gut", o.fb || ""); if (beiRichtig) beiRichtig();
+      } else { b.classList.add("falsch"); b.disabled = true; Lernelement.rueckmeldung(fb, "fehler", o.fb || "Überlegen Sie noch einmal."); }
+    });
+    return b;
+  });
+  wrap.append(...knoepfe, fb);
+  wrap.geloest = () => geloest;
+  return wrap;
+}
+
+/* Lückentext mit Auswahlfeldern. teile: Strings oder {opts:[...], r: index} */
+function lueckentext(titel, teile, beiFertig, klasse = "baustein") {
+  const wrap = el("div", { class: klasse }, el("p", { class: "titel" }, titel));
+  const p = el("p", { class: "luecke" });
+  const selects = [];
+  teile.forEach(t => {
+    if (typeof t === "string") { p.append(t); return; }
+    const reihenfolge = Lernelement.mischen(t.opts.map((o, i) => i));
+    const s = el("select", { "aria-label": "Lücke " + (selects.length + 1) }, el("option", { value: "" }, "…"), reihenfolge.map(i => el("option", { value: String(i) }, t.opts[i])));
+    s.dataset.r = t.r; selects.push(s); p.append(s);
+  });
+  const fb = box();
+  const pruefen = knopf("Prüfen", () => {
+    let fehler = 0;
+    selects.forEach(s => { const ok = s.value === String(s.dataset.r); s.classList.toggle("ok", ok); s.classList.toggle("nok", !ok); if (!ok) fehler++; });
+    if (fehler) Lernelement.rueckmeldung(fb, "fehler", fehler + (fehler === 1 ? " Lücke ist" : " Lücken sind") + " noch nicht richtig (rot markiert).");
+    else { Lernelement.rueckmeldung(fb, "gut", "Dieser Abschnitt steht jetzt in Ihrer Informationsschrift."); selects.forEach(s => s.disabled = true); pruefen.disabled = true; if (beiFertig) beiFertig(); }
+  });
+  wrap.append(p, el("div", { class: "aktionen" }, pruefen), fb);
+  return wrap;
+}
+
+/* Stationen-Steuerung */
+function Stationen(liste, speicherKey) {
+  const nav = document.getElementById("stationen");
+  const ziel = document.getElementById("element");
+  const stand = Lernelement.laden(speicherKey) || { erledigt: {} };
+  const knoepfe = {};
+  liste.forEach((st, i) => {
+    st.sektion = el("section", { class: "station", id: "st-" + st.id, "aria-labelledby": "h-" + st.id });
+    ziel.append(st.sektion);
+    const b = el("button", { type: "button" }, st.kurz);
+    b.addEventListener("click", () => zeige(i));
+    knoepfe[st.id] = b; nav.append(el("li", null, b));
+    if (stand.erledigt[st.id]) b.classList.add("erledigt");
+  });
+  let aktuell = -1;
+  function zeige(i, fokus = true) {
+    if (aktuell >= 0) { liste[aktuell].sektion.classList.remove("aktiv"); knoepfe[liste[aktuell].id].removeAttribute("aria-current"); }
+    aktuell = i; const st = liste[i];
+    if (!st.gebaut) { st.sektion.innerHTML = ""; st.gebaut = st.bauen(st.sektion) !== false; }
+    if (st.beimZeigen) st.beimZeigen();
+    st.sektion.classList.add("aktiv"); knoepfe[st.id].setAttribute("aria-current", "step");
+    if (fokus) { const h = st.sektion.querySelector("h2"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } window.scrollTo({ top: 0, behavior: "auto" }); }
+  }
+  function erledigt(id) { stand.erledigt[id] = true; knoepfe[id].classList.add("erledigt"); Lernelement.merken(speicherKey, stand); }
+  function weiterKnopf(i, text) { return el("div", { class: "weiter" }, knopf(text || "Weiter zur nächsten Station →", () => zeige(i + 1))); }
+  return { zeige, erledigt, weiterKnopf, stand };
+}
+function stationsKopf(nr, titel, zeit) {
+  return el("div", { class: "stationskopf" }, nr ? el("span", { class: "nr" }, nr) : null, el("h2", { id: null }, titel), zeit ? el("span", { class: "zeit" }, "ca. " + zeit + " Min.") : null);
+}
+
+/* ===== Informationsschrift (geräteweit über alle drei Teile) ===== */
+const Infoschrift = (() => {
+  const KEY = "bbsw-lf07-ls04-informationsschrift";
+  const ABSCHNITTE = [
+    { id: "pflicht", begriff: "Buchführungspflicht (§ 238 HGB)", teil: 4 },
+    { id: "handelsbuecher", begriff: "Führung der Handelsbücher (§ 239 HGB, GoB, GoBD)", teil: 4 },
+    { id: "aktiv", begriff: "Aktivkonto", teil: 4 },
+    { id: "passiv", begriff: "Passivkonto", teil: 4 },
+    { id: "regel", begriff: "Buchungsregel: der Dreischritt", teil: 4 },
+    { id: "grundbuch", begriff: "Grundbuch", teil: 5 },
+    { id: "hauptbuch", begriff: "Hauptbuch", teil: 5 },
+    { id: "ebk", begriff: "Eröffnungsbilanzkonto (EBK)", teil: 6 },
+    { id: "sbk", begriff: "Schlussbilanzkonto (SBK)", teil: 6 }
+  ];
+  const INHALT = {}; // id -> Funktion, die den Inhalt als Element baut
+  function daten() { return Lernelement.laden(KEY) || {}; }
+  function setzen(id) { const d = daten(); d[id] = true; Lernelement.merken(KEY, d); }
+  function hat(id) { return !!daten()[id]; }
+  function zuruecksetzen(ids) { const d = daten(); ids.forEach(i => delete d[i]); Lernelement.merken(KEY, d); }
+  function bauen() {
+    const d = daten();
+    const w = el("div", null,
+      el("div", { class: "is-kopf" }, el("div", { class: "is-titel" }, "Informationsschrift: Grundbegriffe der Buchführung"),
+        el("div", { class: "is-zeile" }, el("span", null, "Minibank AG · Lernfeld 7 · Lernsituation 4"), el("span", null, "Name: ______________________"), el("span", null, "Datum: ____________"))));
+    ABSCHNITTE.forEach(a => {
+      const rechts = el("div");
+      if (d[a.id] && INHALT[a.id]) rechts.append(INHALT[a.id]());
+      else rechts.append(el("span", { class: "is-offen" }, "Wird in Teil " + a.teil + " erarbeitet" + (d[a.id] ? "." : " (auf diesem Gerät noch nicht bearbeitet).")));
+      w.append(el("div", { class: "is-abschnitt" }, el("div", { class: "is-begriff" }, a.begriff), rechts));
+    });
+    return w;
+  }
+  return { ABSCHNITTE, INHALT, setzen, hat, bauen, zuruecksetzen };
+})();
+
+/* Inhalte der Informationsschrift: eigene Formulierungen, nicht aus dem Lehrwerk */
+Infoschrift.INHALT.pflicht = () => el("ul", null,
+  el("li", null, "Jeder Kaufmann ist verpflichtet, Bücher zu führen und darin seine Handelsgeschäfte und die Lage seines Vermögens sichtbar zu machen."),
+  el("li", null, "Ein sachverständiger Dritter (z. B. Wirtschaftsprüferin, Bankenaufsicht) muss sich in angemessener Zeit einen Überblick verschaffen können."),
+  el("li", null, "Jeder Geschäftsfall muss sich von der Entstehung bis zur Abwicklung verfolgen lassen."),
+  el("li", null, el("strong", null, "Keine Buchung ohne Beleg."), " Belege dürfen auch elektronisch sein (eingescannt oder als Datensatz)."));
+Infoschrift.INHALT.handelsbuecher = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Eintragungen müssen …"),
+  el("ul", null,
+    el("li", null, el("strong", null, "vollständig"), ": jeder Geschäftsfall wird erfasst."),
+    el("li", null, el("strong", null, "richtig"), ": Betrag und Konten stimmen mit dem Beleg überein."),
+    el("li", null, el("strong", null, "zeitgerecht"), ": möglichst sofort nach dem Geschäftsfall."),
+    el("li", null, el("strong", null, "geordnet"), ": Buchung und Beleg lassen sich schnell finden."),
+    el("li", null, el("strong", null, "unveränderbar"), ": Der ursprüngliche Inhalt muss erkennbar bleiben, Fehler werden durch eine neue Buchung berichtigt.")),
+  el("p", { style: "margin:.1rem 0" }, "Die Bücher dürfen auf Papier oder elektronisch geführt werden."));
+Infoschrift.INHALT.aktiv = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Aktivkonten entstehen aus der Aktivseite der Bilanz und zeigen das Vermögen (z. B. Kasse, Debitoren). Anfangsbestand und Mehrungen stehen im Soll, Minderungen und der Schlussbestand im Haben."),
+  tkonto("Aktivkonto", [{ bez: "Anfangsbestand" }, { bez: "+ Mehrungen" }], [{ bez: "− Minderungen" }, { bez: "Schlussbestand", klasse: "saldo" }]));
+Infoschrift.INHALT.passiv = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Passivkonten entstehen aus der Passivseite der Bilanz und zeigen Fremdkapital (z. B. Kreditoren, Spareinlagen) und Eigenkapital. Anfangsbestand und Mehrungen stehen im Haben, Minderungen und der Schlussbestand im Soll."),
+  tkonto("Passivkonto", [{ bez: "− Minderungen" }, { bez: "Schlussbestand", klasse: "saldo" }], [{ bez: "Anfangsbestand" }, { bez: "+ Mehrungen" }]));
+Infoschrift.INHALT.regel = () => el("div", null,
+  el("ol", { style: "margin:.2rem 0 .2rem 1.2rem;padding:0" },
+    el("li", null, "Welche Konten sind betroffen? Aktiv- oder Passivkonto?"),
+    el("li", null, "Was passiert auf den Konten: Mehrung oder Minderung?"),
+    el("li", null, "Auf welcher Seite wird gebucht: Soll oder Haben?")),
+  el("p", { style: "margin:.2rem 0" }, "Aus dem Ergebnis entsteht der Buchungssatz, die Kurzform für „buche im Soll von … und im Haben von …“: ", el("strong", null, "Soll-Konto mit Betrag – an – Haben-Konto mit Betrag"), ". Das Soll-Konto steht vorne, weil Soll im Konto die linke Seite ist. „An“ trennt nur Soll und Haben, es heißt nicht, dass Geld an jemanden geht. Vor und hinter dem „an“ steht derselbe Betrag (doppelte Buchführung)."),
+  el("p", { style: "margin:.2rem 0" }, "Beispiel: Eine Kundin zahlt 500,00 € bar auf ihr Sparkonto ein. ", el("strong", null, "Kasse 500,00 € an Spareinlagen 500,00 €")));
+Infoschrift.INHALT.grundbuch = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Das Grundbuch (Journal) erfasst alle Buchungen in zeitlicher Reihenfolge als Buchungssätze: laufende Nummer, Datum, Soll-Konto, Haben-Konto, Betrag. Es beantwortet die Frage: Was ist wann passiert?"),
+  el("p", { style: "margin:.1rem 0" }, "Beispiel: Nr. 1 · 16.11. · Kasse an Spareinlagen · 600,00 €"));
+Infoschrift.INHALT.hauptbuch = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Das Hauptbuch ordnet dieselben Buchungen nach Sachkonten (T-Konten). Vor jedem Betrag steht das Gegenkonto. Es beantwortet die Frage: Wie hat sich ein Konto entwickelt und wie hoch ist der Bestand?"),
+  tkonto("Kasse", [{ bez: "AB", betrag: 30000 }, { bez: "Spareinlagen", betrag: 600 }], [{ bez: "Kreditoren", betrag: 250 }]));
+Infoschrift.INHALT.ebk = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Auch die Anfangsbestände brauchen eine Gegenbuchung. Gegenkonto ist das Eröffnungsbilanzkonto. Es ist das Spiegelbild der Eröffnungsbilanz: Aktivposten stehen im EBK im Haben, Passivposten im Soll."),
+  el("p", { style: "margin:.1rem 0" }, el("strong", null, "Aktivkonto an EBK"), " · ", el("strong", null, "EBK an Passivkonto")));
+Infoschrift.INHALT.sbk = () => el("div", null,
+  el("p", { style: "margin:.1rem 0" }, "Am Jahresende wird jedes Konto abgeschlossen: Der Schlussbestand (Saldo) gleicht die kleinere Seite aus und wird ins Schlussbilanzkonto übertragen. Im SBK stehen die Aktivkonten im Soll, die Passivkonten im Haben. Aus dem SBK entsteht die Schlussbilanz."),
+  el("p", { style: "margin:.1rem 0" }, el("strong", null, "SBK an Aktivkonto"), " · ", el("strong", null, "Passivkonto an SBK")));
+
+/* Druck: nur den gewünschten Bereich drucken (Als PDF speichern) */
+function drucken(inhaltEl) {
+  const d = document.getElementById("druckbereich");
+  d.innerHTML = ""; d.append(inhaltEl, el("p", { class: "druckfuss" }, "BBS Wechloy Oldenburg · Bankkaufleute · Lernfeld 7 · Erstellt mit KI-Unterstützung, fachlich geprüft durch die Lehrkraft."));
+  document.body.classList.add("drucken");
+  const weg = () => { document.body.classList.remove("drucken"); window.removeEventListener("afterprint", weg); };
+  window.addEventListener("afterprint", weg);
+  window.print();
+  setTimeout(weg, 1500);
+}
+function pdfHinweis() {
+  return el("details", { style: "margin:.6rem 0" }, el("summary", null, "So speichern Sie als PDF"),
+    el("ul", null,
+      el("li", null, "Laptop/PC: Im Druckfenster als Drucker „Als PDF speichern“ bzw. „Microsoft Print to PDF“ wählen."),
+      el("li", null, "iPad: Im Druckfenster oben auf „Teilen“ (Quadrat mit Pfeil) tippen und „In Dateien sichern“ wählen."),
+      el("li", null, "Speichern Sie die Datei in Ihrer LF-7-Ablage.")));
+}
+function infoschriftBereich(teil, abschnittIds) {
+  const wrap = el("div");
+  const vorschau = el("div", { id: "infoschrift-vorschau" });
+  const neu = () => { vorschau.innerHTML = ""; vorschau.append(Infoschrift.bauen()); };
+  const offen = abschnittIds.filter(i => !Infoschrift.hat(i));
+  wrap.append(
+    el("p", null, "Hier sehen Sie Ihre Informationsschrift. Teile, die Sie auf diesem Gerät schon in anderen Lernelementen erarbeitet haben, erscheinen automatisch."),
+    vorschau,
+    el("div", { class: "aktionen" }, knopf("📄 Informationsschrift als PDF speichern", () => drucken(Infoschrift.bauen()), "gruen")),
+    pdfHinweis());
+  wrap.aktualisieren = neu; neu();
+  return wrap;
+}
+
+/* CSV-Export (Excel-tauglich: Semikolon, UTF-8 mit BOM) */
+function csvLaden(dateiname, zeilen) {
+  const text = "﻿" + zeilen.map(z => z.map(f => { f = String(f); return /[;"\n]/.test(f) ? '"' + f.replace(/"/g, '""') + '"' : f; }).join(";")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+  const a = el("a", { href: url, download: dateiname }); document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+function betragCsv(b) { return b.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }); }
+
+/* Buchungsformular: Soll-Konto, Haben-Konto, Betrag */
+function buchungsFormular(kontenliste, mitBetrag = true) {
+  const opts = () => [el("option", { value: "" }, "Konto wählen …"), ...kontenliste.map(k => el("option", { value: k }, k))];
+  const s = el("select", { "aria-label": "Konto im Soll" }, opts());
+  const h = el("select", { "aria-label": "Konto im Haben" }, opts());
+  const b = el("input", { type: "text", inputmode: "decimal", class: "betrag", "aria-label": "Betrag in Euro", placeholder: "Betrag", autocomplete: "off" });
+  const zeile = el("div", { class: "buchungszeile" }, el("span", null, el("strong", null, "Soll:")), s, el("span", null, el("strong", null, "an Haben:")), h, mitBetrag ? b : null, mitBetrag ? el("span", null, "€") : null);
+  return { zeile, s, h, b, sperren() { s.disabled = h.disabled = b.disabled = true; } };
+}
+
+/* Beleg-Karte */
+function belegKarte(fall) {
+  return el("div", { class: "beleg", role: "group", "aria-label": "Beleg" },
+    el("div", { class: "belegkopf" }, el("span", null, fall.beleg), el("small", null, fall.datum ? "Minibank AG · " + fall.datum : "Minibank AG")),
+    el("div", null, fall.text),
+    el("div", { style: "text-align:right;font-weight:700;margin-top:.3rem" }, geld(fall.betrag)));
+}
+
+</script>
+<script>
+/* ===== Teil 8: Erfolgskonten (LS 05, DS 1./2., ca. 18 Min.) ===== */
+const KEY = "bbsw-lf07-ls05-teil8";
+
+/* Konten: Bestandskonten aus LS 04 + Erfolgskonten. Fachliche Werte zum Prüfen durch die Lehrkraft */
+KONTEN["Kundendarlehen"] = { art: "A", info: "Forderungen aus Darlehen an Kundinnen und Kunden" };
+KONTEN["Debitoren"].info = "Forderungen an Kundinnen und Kunden aus Kontokorrentkrediten und überzogenen Girokonten";
+const ERFOLG = {
+  "Zinserträge": { art: "ER", info: "Zinsen für Darlehen und Überziehungen; im Modell auch Zinsen aus Wertpapieren und Bundesbankguthaben" },
+  "Provisionserträge": { art: "ER", info: "Entgelte und Provisionen für Dienstleistungen, z. B. Kontoführung, Wertpapierorders" },
+  "Mieterträge": { art: "ER", info: "Mieten für Räume, die die Bank vermietet" },
+  "Zinsaufwendungen": { art: "AW", info: "Zinsen, die die Bank für Einlagen zahlt, z. B. auf Spar- und Tagesgeldkonten" },
+  "Gehälter": { art: "AW", info: "Arbeitsentgelte der Mitarbeitenden" },
+  "AVA": { art: "AW", info: "Allgemeine Verwaltungsaufwendungen (im Modell nur Sachaufwand): Dienstleistungen und Sachmittel, die sofort verbraucht werden, z. B. IT-Betreuung, Wartung, Strom, Toner. Im veröffentlichten Abschluss heißen sie andere Verwaltungsaufwendungen; zu den allgemeinen Verwaltungsaufwendungen zählen dort auch die Gehälter." }
+};
+Object.assign(KONTEN, ERFOLG);
+const KONTENLISTE = ["Kasse", "Bundesbank", "Debitoren", "Kundendarlehen", "BGA", "Kreditoren", "Spareinlagen", "Eigenkapital",
+  "Zinserträge", "Provisionserträge", "Mieterträge", "Zinsaufwendungen", "Gehälter", "AVA"];
+const istErfolg = k => !!ERFOLG[k];
+const kontoName = k => k === "AVA" ? "AVA (Allg. Verwaltungsaufwendungen)" : k;
+
+/* ---------- Belege der Station 3 (auch Musterbuchungen in der Informationsschrift) ---------- */
+const FAELLE = [
+  { beleg: "Entgeltabrechnung", kurz: "Kontoführungsentgelt einem überzogenen Girokonto belastet",
+    text: "Die Minibank belastet das Girokonto von Herrn Eilers mit 12,50 € Kontoführungsentgelt. Sein Konto ist überzogen.", soll: "Debitoren", haben: "Provisionserträge", betrag: 12.5, wirkung: "Ertrag: mehrt das Eigenkapital",
+    tipps: { Kreditoren: "Das Konto von Herrn Eilers ist überzogen. Auf welchem Konto führt die Bank überzogene Girokonten?" },
+    begr: "Die Bank erbringt eine Leistung: Sie führt das Girokonto. Das Entgelt dafür ist Ertrag und mehrt das Eigenkapital, also Provisionserträge im Haben. Bezahlt wird, indem die Bank das überzogene Konto weiter belastet: Die Forderung an Herrn Eilers steigt (Debitoren im Soll)." },
+  { beleg: "Eingangsrechnung", kurz: "Toner für die Filialdrucker, Zahlung über die Bundesbank",
+    text: "Rechnung des Bürofachhandels über Toner für die Filialdrucker, 238,00 €. Die Minibank zahlt über ihr Bundesbankkonto.", soll: "AVA", haben: "Bundesbank", betrag: 238, wirkung: "Aufwand: mindert das Eigenkapital",
+    tipps: { BGA: "Toner wird beim Drucken verbraucht. Bleibt er als Ausstattung im Vermögen?" },
+    begr: "Die Bank kauft Toner, der beim Drucken verbraucht wird. Es bleibt kein Vermögenswert zurück: Aufwand, der das Eigenkapital mindert, also AVA im Soll. Bezahlt wird über das Bundesbankkonto, dessen Guthaben sinkt (Bundesbank im Haben)." },
+  { beleg: "Eingangsrechnung", kurz: "Multifunktionsdrucker gekauft, Zahlung über die Bundesbank",
+    text: "Rechnung für einen neuen Multifunktionsdrucker, den die Filiale mehrere Jahre nutzen wird, 1.190,00 €. Zahlung über das Bundesbankkonto.", soll: "BGA", haben: "Bundesbank", betrag: 1190, wirkung: "erfolgsneutral",
+    tipps: { AVA: "Wird der Drucker mit dem Kauf verbraucht? Oder steht er danach im Vermögen der Bank?" },
+    begr: "Der Drucker wird nicht verbraucht, sondern mehrere Jahre genutzt. Er steht als Ausstattung im Vermögen: BGA steigt (Soll), das Bundesbankguthaben sinkt (Haben). Das Eigenkapital bleibt gleich, der Kauf ist erfolgsneutral. Erst der jährliche Wertverlust wird später zu Aufwand." },
+  { beleg: "Zinsgutschrift", kurz: "Zinsen auf einem Sparkonto gutgeschrieben",
+    text: "Die Minibank schreibt Frau Ahlers 45,00 € Zinsen auf ihrem Sparkonto gut.", soll: "Zinsaufwendungen", haben: "Spareinlagen", betrag: 45, wirkung: "Aufwand: mindert das Eigenkapital",
+    tipps: { Kreditoren: "Frau Ahlers spart. Auf welchem Konto führt die Bank Sparguthaben?", Zinserträge: "Hier erhält die Bank keine Zinsen, sie zahlt sie. Was bedeutet das für ihr Eigenkapital?", _neutral: "Es fließt kein Bargeld. Aber wofür zahlt die Bank die Zinsen, und was bedeutet das für ihr Eigenkapital?" },
+    begr: "Frau Ahlers hat der Bank ihr Geld überlassen, die Zinsen sind der Preis dafür. Die Bank nimmt also eine Leistung in Anspruch: Aufwand, der das Eigenkapital mindert (Zinsaufwendungen im Soll). Bezahlt wird nicht bar, sondern per Gutschrift: Die Bank schuldet Frau Ahlers jetzt mehr (Spareinlagen im Haben)." },
+  { beleg: "Lastschrift", kurz: "Darlehenszinsen vom Girokonto (Guthaben) eingezogen",
+    text: "Für das Darlehen von Familie Grashorn zieht die Minibank 640,00 € Zinsen vom Girokonto der Familie ein. Das Girokonto hat Guthaben.", soll: "Kreditoren", haben: "Zinserträge", betrag: 640, wirkung: "Ertrag: mehrt das Eigenkapital",
+    tipps: { Kundendarlehen: "Die Zinsen verringern nicht das Darlehen. Wovon werden sie abgebucht?", Debitoren: "Das Girokonto hat Guthaben. Auf welchem Konto führt die Bank Guthaben?" },
+    begr: "Die Bank hat der Familie Geld auf Zeit überlassen, die Zinsen sind ihr Entgelt dafür: Ertrag, der das Eigenkapital mehrt (Zinserträge im Haben). Bezahlt wird vom Girokonto: Das Guthaben und damit die Schuld der Bank gegenüber der Familie sinkt (Kreditoren im Soll). Das Darlehen selbst bleibt unverändert." },
+  { beleg: "Kassenbeleg", kurz: "Miete für die Wohnung über der Filiale bar erhalten",
+    text: "Der Mieter der Wohnung über der Filiale zahlt seine Miete von 850,00 € bar am Schalter.", soll: "Kasse", haben: "Mieterträge", betrag: 850, wirkung: "Ertrag: mehrt das Eigenkapital",
+    tipps: { Kreditoren: "Der Mieter zahlt bar. Wo landet das Geld?" },
+    begr: "Die Bank überlässt dem Mieter die Wohnung, die Miete ist ihr Entgelt dafür: Ertrag, der das Eigenkapital mehrt (Mieterträge im Haben). Der Mieter zahlt bar, der Kassenbestand steigt (Kasse im Soll)." }
+];
+
+/* ---------- Informationsschrift LS 05 im Layout der Arbeitsblätter ---------- */
+const AB_CSS = `
+.ab-blatt{background:#fff;border:1px solid var(--linie);border-radius:var(--radius);padding:1.2rem 1.3rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ab{font-family:Arial,Helvetica,sans-serif;color:#1A1A18;line-height:1.25;font-size:.95rem}
+.ab p{margin:0 0 .35rem;max-width:none}
+.ab-abschnitt{break-inside:avoid;page-break-inside:avoid}
+.ab-kopf{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;border-bottom:1px solid #005196;padding-bottom:.3rem;margin-bottom:.9rem}
+.ab-meta{color:#005196}
+.ab-thema{color:#005196;font-weight:700;font-size:1.38em;margin-top:.1rem}
+.ab-kopf img{height:3.2rem;width:auto}
+.ab-zw{color:#005196;font-weight:700;margin:1.1rem 0 .3rem;break-after:avoid;page-break-after:avoid}
+.ab-abschnitt:first-of-type .ab-zw{margin-top:0}
+.ab-mat-t{background:#EEF1F2;color:#5B6F78;font-weight:700;padding:.25rem .7rem;border:1px solid #5B6F78}
+.ab-mat-t b{margin-right:.9rem}
+.ab-tab{width:100%;border-collapse:collapse;margin:0 0 .6rem;font-size:1em}
+.ab-tab th{background:#005196;color:#fff;text-align:left;padding:.3rem .55rem;border:1px solid #005196;font-weight:700}
+.ab-tab td{border:1px solid #A7B3B8;padding:.3rem .55rem;vertical-align:top}
+.ab-tab td.r{text-align:right;white-space:nowrap}
+.ab-tab td.k{font-weight:700}
+.ab-tabblock{break-inside:avoid;page-break-inside:avoid;margin:.4rem 0 .6rem}
+.ab-merke{border-left:3px solid #005196;padding:.15rem .8rem;margin:.45rem 0 .6rem;break-inside:avoid;page-break-inside:avoid}
+.ab-label{display:block;font-size:.77em;font-weight:700;letter-spacing:.06em;color:#005196;text-transform:uppercase;margin-bottom:.1rem}
+.ab ol{margin:.2rem 0 .5rem 1.3rem;padding:0}.ab ol li{margin-bottom:.3rem}
+.ab-konten{display:flex;gap:.8rem;flex-wrap:wrap;margin:.3rem 0 .5rem;break-inside:avoid}
+.ab-konten .tkonto{flex:1 1 150px;max-width:230px;margin:0;font-size:.9em}
+.ab-offen{color:#767171;font-style:italic}
+.ab-fuss{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #005196;margin-top:1.2rem;padding-top:.3rem;font-size:.77em;color:#5B6F78}
+.ab-q{display:flex;gap:1mm}.ab-q i{display:block;width:3mm;height:3mm}
+.ab-q i:nth-child(1){background:#5B6F78}.ab-q i:nth-child(2){background:#25A1B1}.ab-q i:nth-child(3){background:#AFCA0A}
+@media print{
+  #druckbereich .ab-blatt{border:0;box-shadow:none;padding:0;border-radius:0}
+  #druckbereich .ab{font-size:11pt}
+  #druckbereich .ab-kopf img{height:20mm}
+  #druckbereich .ab-tab th{background:#005196!important;color:#fff!important;border:1px solid #005196!important}
+  #druckbereich .ab *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #druckbereich .ab-zw{margin-top:12pt}
+}`;
+document.head.append(el("style", null, AB_CSS));
+const LOGO = "data:image/png;base64,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";
+
+const Schrift = (() => {
+  const K = "bbsw-lf07-ls05-informationsschrift";
+  const ABSCHNITTE = [
+    { id: "erfolgskonten", titel: "1  Wozu Erfolgskonten?" },
+    { id: "regel", titel: "2  Soll oder Haben?" },
+    { id: "buchen", titel: "3  Belege buchen: Ihre Musterbuchungen" },
+    { id: "dreischritt", titel: "4  Die Regel in drei Schritten" }
+  ];
+  const INHALT = {};
+  const daten = () => Lernelement.laden(K) || {};
+  function setzen(id) { const d = daten(); d[id] = true; Lernelement.merken(K, d); }
+  function zuruecksetzen() { Lernelement.vergessen(K); }
+  const fertig = () => { const d = daten(); return ABSCHNITTE.filter(a => d[a.id]).length; };
+  function bauen() {
+    const d = daten();
+    const w = el("div", { class: "ab" },
+      el("div", { class: "ab-kopf" },
+        el("div", null, el("div", { class: "ab-meta" }, "LF 7 · LS 05 Das Jahresergebnis ermitteln und im Vergleich beurteilen"),
+          el("div", { class: "ab-thema" }, "Informationsschrift: Erfolgskonten")),
+        el("img", { src: LOGO, alt: "BBS Wechloy" })));
+    ABSCHNITTE.forEach(a => {
+      w.append(el("div", { class: "ab-abschnitt" }, el("div", { class: "ab-zw" }, a.titel),
+        d[a.id] ? INHALT[a.id]() : el("p", { class: "ab-offen" }, "Noch nicht bearbeitet.")));
+    });
+    w.append(el("div", { class: "ab-zw" }, "Ausblick"),
+      el("p", { class: "ab-offen" }, "Wird in den nächsten Doppelstunden ergänzt: In DS 3./4. führen Sie die Erfolgskonten im Hauptbuch, in DS 5./6. schließen Sie sie ab und ermitteln das Jahresergebnis der Minibank."),
+      el("div", { class: "ab-fuss" }, el("span", { class: "ab-q", "aria-hidden": "true" }, el("i"), el("i"), el("i")),
+        el("span", null, "Gespeichert am " + new Date().toLocaleDateString("de-DE") + " · Erstellt mit KI-Unterstützung, fachlich geprüft durch die Lehrkraft")));
+    return el("div", { class: "ab-blatt" }, w);
+  }
+  return { INHALT, ABSCHNITTE, setzen, bauen, zuruecksetzen, fertig };
+})();
+const merkeAB = (...kids) => el("div", { class: "ab-merke" }, el("span", { class: "ab-label" }, "Merke"), el("p", { style: "margin:0" }, ...kids));
+const datenAB = (nr, titel, kopf, zeilen, klassen, breiten) => el("div", { class: "ab-tabblock" },
+  el("div", { class: "ab-mat-t" }, el("b", null, nr), titel),
+  el("table", { class: "ab-tab" }, breiten ? el("colgroup", null, breiten.map(b => el("col", { style: "width:" + b }))) : null, el("thead", null, el("tr", null, kopf.map(k => el("th", null, k)))),
+    el("tbody", null, zeilen.map(z => el("tr", null, z.map((c, i) => el("td", { class: (klassen || [])[i] || null }, c)))))));
+
+Schrift.INHALT.erfolgskonten = () => el("div", null,
+  el("p", null, "Geschäftsfälle, die das Eigenkapital verändern, bucht die Bank nicht direkt auf dem Eigenkapitalkonto. Dort wäre nur zu sehen, dass sich das Eigenkapital verändert hat, aber nicht wodurch. Deshalb führt sie Erfolgskonten als Unterkonten des Eigenkapitals: Aufwandskonten für Leistungen anderer, die sie in Anspruch nimmt und verbraucht, Ertragskonten für Leistungen, die sie selbst erbringt."),
+  datenAB("Tabelle 1", "Erfolgskonten der Minibank AG", ["Konto", "Art", "Was darauf gebucht wird"],
+    ["Gehälter", "Zinsaufwendungen", "AVA", "Zinserträge", "Provisionserträge", "Mieterträge"].map(k => [kontoName(k), ERFOLG[k].art === "AW" ? "Aufwand" : "Ertrag", ERFOLG[k].info]), ["k"], ["30%", "12%", "58%"]),
+  merkeAB("Für jede Aufwands- und Ertragsart gibt es ein eigenes Erfolgskonto. So lässt sich jederzeit ablesen, womit die Bank verdient und wofür sie Leistungen anderer in Anspruch nimmt."));
+Schrift.INHALT.regel = () => el("div", null,
+  el("p", null, "Das Eigenkapital ist ein Passivkonto: Es nimmt im Haben zu und im Soll ab. Seine Unterkonten übernehmen diese Seiten."),
+  el("div", { class: "ab-konten" },
+    tkonto("Eigenkapital", [{ bez: "Minderungen" }], [{ bez: "Anfangsbestand" }, { bez: "Mehrungen" }]),
+    tkonto("Aufwandskonto", [{ bez: "Aufwand" }], [{ bez: "" }]),
+    tkonto("Ertragskonto", [{ bez: "" }], [{ bez: "Ertrag" }])),
+  merkeAB("Aufwand mindert das Eigenkapital und steht im ", el("strong", null, "Soll"), ". Ertrag mehrt das Eigenkapital und steht im ", el("strong", null, "Haben"), ". Ob und wie Geld fließt, zeigt allein das Gegenkonto."));
+Schrift.INHALT.buchen = () => el("div", null,
+  el("p", null, "Diese Belege haben Sie im Lernelement gebucht. Sie zeigen die typischen Fälle, auch einen, der das Eigenkapital nicht verändert."),
+  datenAB("Tabelle 2", "Musterbuchungen", ["Geschäftsfall", "Buchungssatz", "Betrag", "Wirkung auf das EK"],
+    FAELLE.map(f => [f.kurz, f.soll + " an " + f.haben, geld(f.betrag), f.wirkung]), [null, "k", "r"], ["34%", "34%", "12%", "20%"]));
+Schrift.INHALT.dreischritt = () => el("div", null,
+  el("ol", null,
+    el("li", null, el("strong", null, "Verändert der Beleg das Eigenkapital? "), "Nimmt die Bank eine Leistung anderer in Anspruch, ohne dass ein Vermögenswert bleibt (im Haus der Bank: Input), ist es Aufwand. Erbringt sie selbst eine Leistung (Output), ist es Ertrag. Bleibt ein Gegenwert im Vermögen oder ändern sich nur Forderungen und Schulden (Fundament), ist der Beleg erfolgsneutral und wird nur auf Bestandskonten gebucht."),
+    el("li", null, el("strong", null, "Welches Erfolgskonto? "), "Für jede Aufwands- und Ertragsart gibt es ein eigenes Konto (Tabelle 1)."),
+    el("li", null, el("strong", null, "Welche Seite? "), "Aufwand im Soll, Ertrag im Haben. Das Gegenkonto ist ein Bestandskonto. Dort zeigt sich die Zahlung als Mehrung oder Minderung, wie Sie es aus Lernsituation 4 kennen.")),
+  merkeAB("Nicht der Geldfluss entscheidet über die Seite des Erfolgskontos, sondern die Wirkung auf das Eigenkapital."));
+
+function druckenAB(inhaltEl) {
+  const d = document.getElementById("druckbereich");
+  d.innerHTML = ""; d.append(inhaltEl);
+  const t = document.title; document.title = "LF7_LS05_Informationsschrift_Erfolgskonten";
+  document.body.classList.add("drucken");
+  const weg = () => { document.body.classList.remove("drucken"); document.title = t; window.removeEventListener("afterprint", weg); };
+  window.addEventListener("afterprint", weg);
+  window.print();
+  setTimeout(weg, 1500);
+}
+
+const ST = []; let S;
+
+/* ---------- Station 1: Wozu Erfolgskonten? ---------- */
+const OKT = [ // gedachter Beispielmonat September (Quartalsende); ziel = richtiges Unterkonto
+  { text: "Gehälter September den Girokonten der Mitarbeitenden gutgeschrieben", gegen: "Kreditoren", betrag: 53000, seite: "S", ziel: "Gehälter" },
+  { text: "Wartung der Geldautomaten bezahlt", gegen: "Bundesbank", betrag: 9500, seite: "S", ziel: "AVA" },
+  { text: "Monatsrechnung IT-Betreuung bezahlt", gegen: "Bundesbank", betrag: 7250, seite: "S", ziel: "AVA" },
+  { text: "Stromrechnung bezahlt", gegen: "Bundesbank", betrag: 3200, seite: "S", ziel: "AVA" },
+  { text: "Darlehenszinsen von den Girokonten eingezogen", gegen: "Kreditoren", betrag: 38500, seite: "H", ziel: "Zinserträge" },
+  { text: "Quartalszinsen den Kontokorrentkonten belastet", gegen: "Debitoren", betrag: 150000, seite: "H", ziel: "Zinserträge" },
+  { text: "Kontoführungsentgelte für das Quartal belastet", gegen: "Kreditoren", betrag: 80000, seite: "H", ziel: "Provisionserträge" },
+  { text: "Provisionen für Wertpapierorders belastet", gegen: "Kreditoren", betrag: 20500, seite: "H", ziel: "Provisionserträge" },
+  { text: "Miete für die Praxisräume im Haus erhalten", gegen: "Kreditoren", betrag: 1600, seite: "H", ziel: "Mieterträge" }
+];
+ST.push({ id: "vorstand", kurz: "1 Wozu Erfolgskonten?", bauen(sek) {
+  sek.append(stationsKopf("Station 1", "Wozu Erfolgskonten?", 6),
+    el("p", null, "Eine Idee liegt nahe: Was das Eigenkapital verändert, bucht man direkt auf das Eigenkapitalkonto. So sähe das Konto der Minibank für einen Monat aus, wenn sie es so machen würde (Beispiel September):"),
+    tkonto("Eigenkapital (Beispiel September)", OKT.filter(o => o.seite === "S").map(o => ({ bez: o.gegen, betrag: o.betrag })), OKT.filter(o => o.seite === "H").map(o => ({ bez: o.gegen, betrag: o.betrag }))));
+  const t1 = el("div"); sek.append(t1);
+  t1.append(mc({ titel: "Der Vorstand fragt nach", text: "„Wie viel haben wir im September an Zinsen eingenommen?“ Können Sie das am Konto ablesen?" }, [
+    { t: "Ja, das sind alle Beträge mit dem Gegenkonto Kreditoren im Haben.", fb: "Über Kreditoren laufen auch Entgelte und Provisionen. Das Gegenkonto sagt nur, wie bezahlt wurde, nicht wofür." },
+    { t: "Ja, das ist die Summe der Habenseite.", fb: "Im Haben stehen alle Vorgänge, die das Eigenkapital mehren, also auch Entgelte, Provisionen und Mieten." },
+    { t: "Nein. Das Konto zeigt nur, dass das Eigenkapital gestiegen oder gesunken ist, nicht wodurch.", richtig: true, fb: "Genau. Für die Frage des Vorstands fehlt die Information, wofür gebucht wurde." }
+  ], () => { t2.hidden = false; }));
+  const t2 = el("div", { hidden: true }); sek.append(t2);
+  const auf = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Für jede Art ein eigenes Konto"),
+    el("p", null, "Deshalb führt die Minibank für jede Aufwands- und Ertragsart ein eigenes Unterkonto des Eigenkapitals. Ordnen Sie jede Buchung aus dem Beispiel ihrem Unterkonto zu."));
+  const tab = el("table", { class: "diagnose" }, el("thead", null, el("tr", null, el("th", null, "Vorgang"), el("th", null, "Betrag"), el("th", null, "Unterkonto"))));
+  const tb = el("tbody"); tab.append(tb);
+  const sels = OKT.map(o => {
+    const s = el("select", { "aria-label": "Unterkonto für " + o.text }, el("option", { value: "" }, "…"), Object.keys(ERFOLG).map(k => el("option", { value: k }, kontoName(k))));
+    tb.append(el("tr", null, el("td", null, o.text), el("td", { style: "text-align:right;white-space:nowrap" }, geld(o.betrag)), el("td", null, s))); return s;
+  });
+  const fb = box();
+  const t3 = el("div", { hidden: true });
+  auf.append(el("div", { class: "tabelle-wrap" }, tab), el("div", { class: "aktionen" }, knopf("Prüfen", () => {
+    let f = 0; sels.forEach((s, i) => { const ok = s.value === OKT[i].ziel; s.classList.toggle("falsch", !ok); if (!ok) f++; });
+    if (f) Lernelement.rueckmeldung(fb, "fehler", f + (f === 1 ? " Zuordnung passt" : " Zuordnungen passen") + " noch nicht (rot). Fragen Sie: Nimmt die Bank hier eine Leistung in Anspruch oder erbringt sie selbst eine, und welche?");
+    else { Lernelement.rueckmeldung(fb, "gut", "Alle Buchungen liegen auf dem passenden Unterkonto."); sels.forEach(s => s.disabled = true); t3.hidden = false; }
+  })), fb);
+  t2.append(auf, t3);
+  const summe = k => OKT.filter(o => o.ziel === k).reduce((a, o) => a + o.betrag, 0);
+  const zi = el("input", { type: "text", inputmode: "decimal", class: "betrag", "aria-label": "Zinserträge September in Euro", autocomplete: "off" });
+  const fb2 = box();
+  const t4 = el("div", { hidden: true });
+  t3.append(el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Noch einmal die Frage des Vorstands"),
+    el("p", null, "Wie viel hat die Minibank im September an Zinsen eingenommen?"),
+    el("div", { class: "buchungszeile" }, zi, el("span", null, "€"), knopf("Prüfen", () => {
+      const v = zahlLesen(zi.value);
+      if (Math.abs(v - summe("Zinserträge")) < 0.01) { Lernelement.rueckmeldung(fb2, "gut", "Mit einem eigenen Konto ist das eine einfache Summe: " + geld(summe("Zinserträge")) + "."); t4.hidden = false; }
+      else Lernelement.rueckmeldung(fb2, "fehler", "Addieren Sie alles, was Sie dem Konto Zinserträge zugeordnet haben.");
+    })), fb2), t4);
+  t4.append(mc({ titel: "Und die zweite Frage", text: "„Womit verdienen wir mehr: mit dem Zinsgeschäft oder mit Entgelten und Provisionen?“" }, [
+    { t: "Mit dem Zinsgeschäft", richtig: true, fb: "Zinserträge " + geld(summe("Zinserträge")) + ", Provisionserträge " + geld(summe("Provisionserträge")) + ". Ob das Zinsgeschäft auch dann vorn liegt, wenn man die Zinsen abzieht, die die Bank selbst zahlt, zeigt erst der Jahresabschluss: Die Sparzinsen werden einmal im Jahr gutgeschrieben." },
+    { t: "Mit Entgelten und Provisionen", fb: "Vergleichen Sie die Summen der Konten Zinserträge und Provisionserträge." }
+  ], () => { lt.hidden = false; }));
+  const lt = el("div", { hidden: true }); t4.append(lt);
+  lt.append(lueckentext("Für Ihre Informationsschrift: Wozu Erfolgskonten?", [
+    "Vorgänge, die das Eigenkapital verändern, bucht die Bank nicht direkt auf dem ", { opts: ["Eigenkapitalkonto", "Kreditorenkonto", "Bundesbankkonto"], r: 0 },
+    ", sondern auf Erfolgskonten. Sie sind ", { opts: ["Unterkonten des Eigenkapitals", "eigene Bilanzposten", "Unterkonten der Kreditoren"], r: 0 },
+    ". Für jede Aufwands- und Ertragsart gibt es ", { opts: ["ein eigenes Konto", "eine eigene Bilanz", "ein gemeinsames Sammelkonto"], r: 0 },
+    ". Auf Aufwandskonten bucht die Bank Leistungen anderer, die sie ", { opts: ["in Anspruch nimmt", "erbringt", "verkauft"], r: 0 },
+    ", auf Ertragskonten Leistungen, die sie selbst ", { opts: ["erbringt", "bezahlt", "verbraucht"], r: 0 },
+    ". So zeigt die Buchführung, womit die Bank verdient."
+  ], () => { Schrift.setzen("erfolgskonten"); S.erledigt("vorstand"); lt.append(S.weiterKnopf(0, "Weiter zu 2: Soll oder Haben? →")); }));
+}});
+
+/* ---------- Station 2: Soll oder Haben? ---------- */
+ST.push({ id: "seite", kurz: "2 Soll oder Haben?", bauen(sek) {
+  sek.append(stationsKopf("Station 2", "Soll oder Haben?", 3),
+    el("p", null, "Die Erfolgskonten sind Unterkonten des Eigenkapitals. Leiten Sie daraus ab, auf welcher Seite gebucht wird."),
+    tkonto("Eigenkapital", [{ bez: "?" }], [{ bez: "?" }]));
+  const a = el("div"), b = el("div", { hidden: true }), c = el("div", { hidden: true }); sek.append(a, b, c);
+  a.append(mc({ titel: "Schritt 1", text: "Das Eigenkapital ist ein Passivkonto. Auf welcher Seite steht eine <strong>Minderung</strong>?" }, [
+    { t: "Im Soll", richtig: true, fb: "Richtig: Passivkonten nehmen im Haben zu und im Soll ab." },
+    { t: "Im Haben", fb: "Im Haben steht beim Passivkonto der Anfangsbestand und alles, was hinzukommt." }
+  ], () => b.hidden = false));
+  b.append(mc({ titel: "Schritt 2", text: "Die Bank zahlt Gehälter. Dieser Aufwand mindert das Eigenkapital. Auf welcher Seite des Kontos <strong>Gehälter</strong> wird gebucht?" }, [
+    { t: "Im Soll, weil Aufwand das Eigenkapital mindert", richtig: true, fb: "Genau. Das Aufwandskonto übernimmt die Seite, auf der das Eigenkapital abnimmt." },
+    { t: "Im Haben, weil Geld abfließt", fb: "Dass Geld abfließt, zeigt das Gegenkonto, zum Beispiel Bundesbank im Haben. Für das Aufwandskonto zählt die Wirkung auf das Eigenkapital." },
+    { t: "Das hängt davon ab, ob bar oder unbar gezahlt wird", fb: "Die Zahlungsart entscheidet nur über das Gegenkonto, nicht über die Seite des Aufwandskontos." }
+  ], () => c.hidden = false));
+  c.append(mc({ titel: "Schritt 3", text: "Die Bank erhält Kontoführungsentgelte. Auf welcher Seite des Kontos <strong>Provisionserträge</strong> wird gebucht?" }, [
+    { t: "Im Haben, weil Ertrag das Eigenkapital mehrt", richtig: true, fb: "Richtig. Ertrag steht dort, wo das Eigenkapital zunimmt." },
+    { t: "Im Soll, weil Geld hereinkommt", fb: "Wie in Schritt 2: Der Geldfluss zeigt sich auf dem Gegenkonto. Für das Ertragskonto zählt, dass das Eigenkapital steigt." }
+  ], () => { lt.hidden = false; }));
+  const lt = el("div", { hidden: true }); c.append(lt);
+  lt.append(lueckentext("Für Ihre Informationsschrift: Soll oder Haben?", [
+    "Aufwand wird im ", { opts: ["Soll", "Haben"], r: 0 }, " gebucht, weil er das Eigenkapital ", { opts: ["mindert", "mehrt"], r: 0 },
+    ". Ertrag wird im ", { opts: ["Haben", "Soll"], r: 0 }, " gebucht, weil er das Eigenkapital ", { opts: ["mehrt", "mindert"], r: 0 },
+    ". Ob dabei Geld fließt, zeigt das ", { opts: ["Gegenkonto", "Erfolgskonto", "Eigenkapitalkonto"], r: 0 }, "."
+  ], () => { Schrift.setzen("regel"); S.erledigt("seite"); lt.append(S.weiterKnopf(1, "Weiter zu 3: Belege buchen →")); }));
+}});
+
+/* ---------- Station 3: Belege buchen ---------- */
+function hinweisFuer(f, s, h) {
+  if (!s || !h) return "Wählen Sie ein Konto für das Soll und eines für das Haben.";
+  if (s === f.haben && h === f.soll) return "Die Konten stimmen, die Seiten sind vertauscht. " + (istErfolg(f.soll) || istErfolg(f.haben) ? "Mindert oder mehrt der Vorgang das Eigenkapital?" : "Gehen Sie den Dreischritt für beide Konten durch.");
+  for (const k of [s, h]) if (f.tipps[k] && ![f.soll, f.haben].includes(k)) return f.tipps[k];
+  if (f.tipps._neutral && !istErfolg(s) && !istErfolg(h)) return f.tipps._neutral;
+  const erfolgRichtig = [f.soll, f.haben].find(istErfolg);
+  if (erfolgRichtig && ![s, h].includes(erfolgRichtig)) {
+    if ([s, h].some(istErfolg)) return "Ein Erfolgskonto ist richtig gedacht, aber nicht dieses. Nimmt die Bank eine Leistung in Anspruch oder erbringt sie selbst eine, und welche?";
+    return "Verändert dieser Vorgang das Eigenkapital? Dann brauchen Sie ein Erfolgskonto.";
+  }
+  if (!erfolgRichtig && [s, h].some(istErfolg)) return "Hier verändert sich das Eigenkapital nicht. Ein Erfolgskonto passt deshalb nicht.";
+  return "Ein Konto passt noch nicht. Fragen Sie: Wie wird bezahlt, und welches Bestandskonto zeigt das?";
+}
+ST.push({ id: "buchen", kurz: "3 Belege buchen", bauen(sek) {
+  sek.append(stationsKopf("Station 3", "Belege buchen", 6),
+    el("p", null, "Buchen Sie sechs Belege der Minibank im Grundbuch. Achtung: Nicht jeder Beleg verändert das Eigenkapital."),
+    el("div", { class: "merke" }, el("p", { class: "titel" }, "Der Dreischritt, erweitert"),
+      el("ol", { style: "margin:.2rem 0 .2rem 1.2rem;padding:0" },
+        el("li", null, "Welche Konten sind betroffen? Bestandskonto oder Erfolgskonto?"),
+        el("li", null, "Bestandskonto: Mehrung oder Minderung? Erfolgskonto: Sinkt oder steigt das Eigenkapital?"),
+        el("li", null, "Auf welcher Seite wird gebucht?"))));
+  const zaehler = el("p", { class: "zaehler", "aria-live": "polite" }); const zone = el("div"); sek.append(zaehler, zone);
+  let i = 0, ersterV = 0;
+  function zeige() {
+    zone.innerHTML = ""; zaehler.textContent = "Beleg " + (i + 1) + " von " + FAELLE.length + " · beim ersten Versuch richtig: " + ersterV;
+    const f = FAELLE[i]; const form = buchungsFormular(KONTENLISTE); const fb = box(); let v = 0;
+    const auf = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Beleg " + (i + 1)), belegKarte({ beleg: f.beleg, text: f.text, betrag: f.betrag }), form.zeile);
+    const weiter = el("div", { class: "weiter", hidden: true }, knopf(i < FAELLE.length - 1 ? "Nächster Beleg →" : "Fertig →", () => { i++; if (i < FAELLE.length) zeige(); else ende(); }));
+    auf.append(el("div", { class: "aktionen" }, knopf("Prüfen", () => {
+      const s = form.s.value, h = form.h.value, b = zahlLesen(form.b.value); v++;
+      const ok = s === f.soll && h === f.haben && Math.abs(b - f.betrag) < 0.005;
+      if (ok) { if (v === 1) ersterV++; form.sperren(); Lernelement.rueckmeldung(fb, "gut", "<strong>" + buchungssatz(f.soll, f.haben, f.betrag) + "</strong><br>" + f.begr); weiter.hidden = false; zaehler.textContent = "Beleg " + (i + 1) + " von " + FAELLE.length + " · beim ersten Versuch richtig: " + ersterV; return; }
+      let t = (s === f.soll && h === f.haben) ? (isNaN(b) ? "Tragen Sie den Betrag ein." : "Die Konten stimmen, der Betrag nicht. Schauen Sie noch einmal auf den Beleg.") : hinweisFuer(f, s, h);
+      if (v >= 2 && !(s === f.soll && h === f.haben)) { t += "<br><br><strong>So geht es:</strong> " + buchungssatz(f.soll, f.haben, f.betrag) + ". " + f.begr; }
+      Lernelement.rueckmeldung(fb, "fehler", t);
+    })), fb, weiter);
+    zone.append(auf);
+  }
+  function ende() { zone.innerHTML = ""; zaehler.textContent = "Alle sechs Belege gebucht · beim ersten Versuch richtig: " + ersterV + " von 6"; Schrift.setzen("buchen"); S.erledigt("buchen");
+    zone.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Geschafft"), el("p", null, "Ihre sechs Buchungen stehen als Musterbuchungen in der Informationsschrift. Fassen Sie jetzt die Regel zusammen, nach der Sie gebucht haben.")), S.weiterKnopf(2, "Weiter zu 4: Regel festhalten →")); }
+  zeige();
+}});
+
+/* ---------- Station 4: Regel festhalten ---------- */
+ST.push({ id: "regelfest", kurz: "4 Regel festhalten", bauen(sek) {
+  sek.append(stationsKopf("Station 4", "Regel festhalten", 2),
+    el("p", null, "Sie haben sechs Belege gebucht. Halten Sie jetzt in drei Schritten fest, wie Sie dabei vorgegangen sind. Das ist die Regel, mit der Sie gleich die Belege der Mappe buchen."));
+  const b = el("div", { hidden: true }), c = el("div", { hidden: true }), d = el("div", { hidden: true });
+  sek.append(lueckentext("Schritt 1: Verändert der Beleg das Eigenkapital?", [
+    "Nimmt die Bank eine Leistung anderer in Anspruch, ohne dass ein Vermögenswert bleibt, entsteht ", { opts: ["Aufwand", "Ertrag", "kein Erfolg"], r: 0 },
+    ". Erbringt sie selbst eine Leistung, entsteht ", { opts: ["Ertrag", "Aufwand", "kein Erfolg"], r: 0 },
+    ". Bleibt ein Gegenwert im Vermögen, wie beim Drucker, ist der Beleg ", { opts: ["erfolgsneutral", "Aufwand", "Ertrag"], r: 0 }, "."
+  ], () => b.hidden = false), b, c, d);
+  b.append(lueckentext("Schritt 2: Welches Erfolgskonto?", [
+    "Für jede Aufwands- und Ertragsart gibt es ein eigenes Konto. Zinsen, die die Bank für ein Sparguthaben zahlt, bucht sie auf ", { opts: ["Zinsaufwendungen", "Zinserträge", "Spareinlagen"], r: 0 },
+    ", Entgelte für die Kontoführung auf ", { opts: ["Provisionserträge", "Zinserträge", "Kreditoren"], r: 0 }, "."
+  ], () => c.hidden = false));
+  c.append(lueckentext("Schritt 3: Welche Seite?", [
+    "Aufwand steht im ", { opts: ["Soll", "Haben"], r: 0 }, ", Ertrag im ", { opts: ["Haben", "Soll"], r: 0 },
+    ". Das Gegenkonto ist ein ", { opts: ["Bestandskonto", "Erfolgskonto"], r: 0 }, " und zeigt, wie bezahlt wird. Über die Seite des Erfolgskontos entscheidet also nicht der Geldfluss, sondern die ",
+    { opts: ["Wirkung auf das Eigenkapital", "Höhe des Betrags", "Zahlungsart"], r: 0 }, "."
+  ], () => { Schrift.setzen("dreischritt"); S.erledigt("regelfest");
+    d.hidden = false; d.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Ihre Informationsschrift ist vollständig"), el("p", null, "Laden Sie sie jetzt als PDF herunter.")), S.weiterKnopf(3, "Zur Informationsschrift →")); }));
+}});
+
+/* ---------- Informationsschrift herunterladen ---------- */
+let bereich;
+ST.push({ id: "schrift", kurz: "📄 Informationsschrift", bauen(sek) {
+  sek.append(stationsKopf("", "Informationsschrift herunterladen", 1),
+    el("p", null, "Hier sehen Sie, was Sie in den Stationen 1 bis 4 erarbeitet haben. Speichern Sie die Informationsschrift als PDF in Ihrer LF-7-Ablage. Sie brauchen sie für die Prüfbuchungen in AA 4 und für die Hausaufgabe."));
+  const stand = el("p", { class: "zaehler", "aria-live": "polite" });
+  const vorschau = el("div");
+  bereich = el("div", null, stand, el("div", { class: "aktionen" }, knopf("📄 Informationsschrift als PDF speichern", () => druckenAB(Schrift.bauen()), "gruen")), pdfHinweis(), vorschau);
+  bereich.aktualisieren = () => { const n = Schrift.fertig(); stand.textContent = n + " von 4 Abschnitten erarbeitet" + (n < 4 ? ". Fehlende Abschnitte erscheinen als „Noch nicht bearbeitet“." : "."); vorschau.innerHTML = ""; vorschau.append(Schrift.bauen()); };
+  bereich.aktualisieren();
+  sek.append(bereich, el("div", { class: "merke" }, el("p", { class: "titel" }, "Noch Zeit?"), el("p", null, "Dann prüfen Sie unter „Fehler finden“ die Buchungen einer neuen Kollegin.")), S.weiterKnopf(4, "Zu: Fehler finden →"));
+  S.erledigt("schrift");
+}, beimZeigen() { if (bereich) bereich.aktualisieren(); } });
+
+/* ---------- Vertiefung: Fehler finden ---------- */
+const FEHLER = [
+  { fall: "Die Gehälter für November werden auf die Konten der Mitarbeitenden bei anderen Banken überwiesen, 52.000,00 €.", gebucht: "Gehälter an Bundesbank", richtig: true, fb: "Stimmt: Aufwand im Soll, das Geld geht über die Bundesbank an andere Banken." },
+  { fall: "Die Minibank belastet die Kontokorrentkonten (überzogen) mit Zinsen von 4.300,00 €.", gebucht: "Zinserträge an Debitoren", richtig: false,
+    gruende: [{ t: "Soll und Haben sind vertauscht: Ertrag gehört ins Haben, die Forderungen steigen.", r: true }, { t: "Statt Debitoren müsste Kreditoren stehen." }, { t: "Das ist kein Ertrag, weil kein Geld fließt." }],
+    fb: "Richtig wäre: Debitoren an Zinserträge. Der Ertrag mehrt das Eigenkapital (Haben), die Forderungen an die Kunden steigen (Soll)." },
+  { fall: "Die Minibank kauft einen neuen Tresor für die Filiale, 8.000,00 €, Zahlung über die Bundesbank.", gebucht: "AVA an Bundesbank", richtig: false,
+    gruende: [{ t: "Der Tresor wird nicht verbraucht, er gehört zur Ausstattung: BGA statt AVA.", r: true }, { t: "Statt Bundesbank müsste Kasse stehen, weil der Tresor Bargeld enthält." }, { t: "Die Seiten sind vertauscht." }],
+    fb: "Richtig wäre: BGA an Bundesbank. Der Kauf ist erfolgsneutral; der Tresor bleibt im Vermögen." },
+  { fall: "Provisionen für Wertpapierorders werden den Girokonten (Guthaben) belastet, 2.100,00 €.", gebucht: "Kreditoren an Provisionserträge", richtig: true, fb: "Stimmt: Ertrag im Haben, die Guthaben der Kunden sinken." }
+];
+ST.push({ id: "vertiefung", kurz: "+ Fehler finden", bauen(sek) {
+  sek.append(stationsKopf("Für Schnelle", "Fehler finden", 4),
+    el("p", null, "Ihre neue Kollegin Frau Jasper hat vier Buchungssätze gebildet. Zwei davon sind falsch. Prüfen Sie jede Buchung und begründen Sie Ihr Urteil."));
+  let geloest = 0;
+  FEHLER.forEach((f, i) => {
+    const auf = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Buchung " + (i + 1)), el("p", null, f.fall), el("p", null, "Frau Jasper bucht: ", el("strong", null, f.gebucht)));
+    const fb = box(); const grund = el("div", { hidden: true });
+    const urteil = (u) => {
+      if (u === f.richtig) {
+        if (f.richtig) { Lernelement.rueckmeldung(fb, "gut", f.fb); fertig(); }
+        else { Lernelement.rueckmeldung(fb, "info", "Richtig erkannt. Was genau ist falsch?"); grund.hidden = false; }
+        auf.querySelectorAll(".urteil").forEach(b => b.disabled = true);
+      } else Lernelement.rueckmeldung(fb, "fehler", f.richtig ? "Gehen Sie den Dreischritt durch: Konten, Wirkung, Seite. Finden Sie wirklich einen Fehler?" : "Prüfen Sie beide Konten und die Seiten noch einmal mit dem Dreischritt.");
+    };
+    auf.append(el("div", { class: "aktionen" }, knopf("Richtig", () => urteil(true), "zweit urteil"), knopf("Falsch", () => urteil(false), "zweit urteil")), grund, fb);
+    if (!f.richtig) grund.append(mc({ titel: "Ihre Begründung", text: "Was ist an der Buchung falsch?" }, f.gruende.map(g => ({ t: g.t, richtig: !!g.r, fb: g.r ? f.fb : "Das ist nicht der Fehler. Prüfen Sie Konto für Konto." })), fertig));
+    function fertig() { geloest++; if (geloest === FEHLER.length) { S.erledigt("vertiefung"); sek.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Stark"), el("p", null, "Sie haben alle Buchungen von Frau Jasper beurteilt. Typische Fehler sind vertauschte Seiten bei Erträgen und Aufwand für Dinge, die gar nicht verbraucht werden."))); } }
+    sek.append(auf);
+  });
+}});
+
+S = Stationen(ST, KEY);
+S.zeige(0, false);
+document.getElementById("neustart").addEventListener("click", () => { Lernelement.vergessen(KEY); Schrift.zuruecksetzen(); location.reload(); });
+
+</script>
+</body>
+</html>

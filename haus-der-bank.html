@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haus der Bank: Wo wirken die Belege? | BBS Wechloy</title>
+<style>
+/* Basisvorlage BBS Wechloy Lernelemente. Keine externen Ressourcen einbinden. */
+:root{
+  --blau:#005AAD; --blau-dunkel:#003F7A; --blau-hell:#E6EFF8;
+  --tinte:#171714; --text-leise:#4A5361; --flaeche:#F4F7FB; --weiss:#FFFFFF; --linie:#C9D3E0;
+  --gut:#1B7340; --gut-hell:#E7F4EC; --fehler:#B42318; --fehler-hell:#FDECEA;
+  --hinweis:#8A5300; --hinweis-hell:#FFF4E0; --fokus:#F2A900; --radius:6px;
+  --schrift:"Segoe UI",system-ui,-apple-system,"Roboto","Helvetica Neue",Arial,sans-serif;
+  --input:#A63A2E; --input-hell:#FBEDEB; --output:#2E7D45; --output-hell:#EAF5EC;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--weiss);color:var(--tinte);font-family:var(--schrift);font-size:1rem;line-height:1.45}
+@media (min-width:1200px){body{font-size:1.1rem}}
+.seite{max-width:1320px;margin:0 auto;padding:0 1rem 1.5rem}
+.kopf{border-top:6px solid var(--blau);padding:.8rem 0 .6rem;border-bottom:1px solid var(--linie);margin-bottom:.8rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:.5rem}
+.kontext{margin:0 0 .15rem;color:var(--blau-dunkel);font-size:.9rem;font-weight:600}
+h1{font-size:clamp(1.3rem,1rem + 1.2vw,1.8rem);line-height:1.2;margin:0}
+p{max-width:72ch}
+button{font:inherit;font-weight:600;border-radius:var(--radius);padding:.45rem .9rem;min-height:44px;cursor:pointer;border:2px solid var(--blau);background:var(--blau);color:var(--weiss)}
+button:hover{background:var(--blau-dunkel);border-color:var(--blau-dunkel)}
+button.zweit{background:var(--weiss);color:var(--blau)}
+button.zweit:hover{background:var(--blau-hell)}
+button[aria-pressed="true"]{background:var(--blau-dunkel);color:#fff}
+:focus-visible{outline:3px solid var(--fokus);outline-offset:2px}
+.rueckmeldung{margin:.6rem 0;padding:.6rem .9rem;border-radius:var(--radius);border-left:5px solid}
+.rueckmeldung:empty{display:none}
+.rueckmeldung.gut{background:var(--gut-hell);border-color:var(--gut)}
+.rueckmeldung.fehler{background:var(--fehler-hell);border-color:var(--fehler)}
+.rueckmeldung.info{background:var(--hinweis-hell);border-color:var(--hinweis)}
+.rueckmeldung .marke{font-weight:700;margin-right:.35rem}
+.nur-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.fuss{margin-top:1.2rem;padding-top:.6rem;border-top:1px solid var(--linie);font-size:.8rem;color:var(--text-leise)}
+.fuss p{margin:.15rem 0;max-width:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media print{.leiste,button{display:none}}
+
+/* ===== Haus der Bank: eine Bildschirmseite am Beamer ===== */
+html{font-size:clamp(14px,min(2vh,1.35vw),22px)}
+body{font-size:1rem}
+.seite{max-width:none;padding:0 1rem .5rem}
+.kopf{padding:.35rem 0 .35rem;margin-bottom:.4rem;align-items:center}
+.kopf h1{font-size:1.35rem}
+.kontext{font-size:.75rem;margin:0}
+.leitfrage{font-size:.8rem;color:var(--text-leise);margin:.1rem 0 0;max-width:none}
+button.zweit[aria-pressed="true"],button.zweit[aria-pressed="true"]:hover{background:var(--blau-dunkel);border-color:var(--blau-dunkel);color:#fff}
+#buehne,.leiste{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.leiste{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.leiste button{min-height:40px;padding:.3rem .7rem;font-size:.85rem}
+.leiste .zaehler{font-weight:600;color:var(--blau-dunkel);font-size:.85rem;margin-left:.3rem}
+.besprechung{display:inline-flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.besprechung[hidden]{display:none}
+.fuss button{font-size:.68rem;min-height:28px;padding:.1rem .5rem;margin-left:.4rem}
+.karte.umgelegt::before{content:"↻";position:absolute;bottom:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--blau-dunkel);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.leiste .trenner{width:1px;align-self:stretch;background:var(--linie);margin:0 .1rem}
+.haus{display:grid;grid-template-columns:7.5rem minmax(0,1fr) 7.5rem;gap:.5rem;align-items:stretch}
+.markt{background:var(--flaeche);border:1px solid var(--linie);border-radius:8px;padding:.45rem;text-align:center;color:var(--text-leise);font-size:.75rem;display:flex;flex-direction:column;justify-content:space-around;gap:.4rem}
+.markt h2{font-size:.85rem;margin:0 0 .2rem;color:var(--text-leise);hyphens:auto}
+.markt .wer{color:var(--tinte);font-size:.8rem;hyphens:auto;overflow-wrap:break-word}
+.markt .rolle{margin:0}
+.mitte{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.dach{height:1.7rem;background:var(--blau-hell);clip-path:polygon(0 100%,50% 0,100% 100%);display:flex;align-items:flex-end;justify-content:center;font-weight:700;color:var(--blau-dunkel);font-size:.85rem}
+.stock{border:3px solid var(--blau);border-radius:4px;padding:.35rem}
+.stock>h2{margin:0 0 .25rem;text-align:center;font-size:.9rem;color:var(--blau-dunkel)}
+.zweispaltig{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.zone{border-radius:8px;padding:.35rem .45rem;border:2px solid;display:flex;flex-direction:column;transition:box-shadow .2s}
+.zone .zkopf{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:0 .5rem}
+.zone .ztitel{font-weight:700;font-size:1.05rem}
+.zone .zsub{font-size:.8rem}
+.zone .begriff{display:none;font-weight:700;font-size:1.05rem;padding:0 .4rem;border-radius:4px;background:#fff}
+.zeige-begriffe .zone .begriff{display:inline-block;animation:auf .4s ease}
+.zone .beispiele{font-size:.72rem;color:var(--text-leise);margin:.15rem 0 .25rem;padding:0;list-style:none;text-align:center}
+.zone .beispiele li{display:inline}
+.zone .beispiele li+li::before{content:" · "}
+.zone .ablage{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:.3rem;align-content:start;min-height:6.6rem;border-radius:6px}
+.zone.input{border-color:var(--input);background:var(--input-hell)} .zone.input .ztitel,.zone.input .begriff,.zone.input .zsub{color:var(--input)}
+.zone.output{border-color:var(--output);background:var(--output-hell)} .zone.output .ztitel,.zone.output .begriff,.zone.output .zsub{color:var(--output)}
+.zone.fund{border-color:var(--blau);background:#fff}
+.zone.fund .ablage{min-height:3.3rem}
+.fundament{background:var(--blau-hell)}
+.konten{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.75rem;margin-bottom:.3rem}
+.konten div{background:var(--flaeche);border:1px solid var(--linie);border-radius:6px;padding:.2rem .45rem}
+.konten strong{color:var(--blau-dunkel);margin-right:.3rem}
+.ek{display:inline-block;border:2px solid var(--blau);border-radius:4px;padding:0 .35rem;font-weight:700;background:#fff;transition:box-shadow .3s}
+.zone.ziel,.mappe.ziel{box-shadow:0 0 0 4px var(--fokus)}
+.waehlbar{cursor:pointer}
+.erfolgsband{display:none;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;background:var(--blau);color:#fff;border-radius:999px;padding:.15rem .8rem;font-weight:700;font-size:.8rem;text-align:center}
+.zeige-ek .erfolgsband{display:flex;animation:auf .4s ease}
+.erfolgsband2{display:none;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;background:#fff;color:var(--blau);border:2px solid var(--blau);border-radius:999px;padding:.1rem .8rem;font-weight:700;font-size:.8rem;text-align:center;margin-top:.3rem}
+.zeige-erfolg .erfolgsband2{display:flex;animation:auf .4s ease}
+.zeige-ek .ek{box-shadow:0 0 0 4px rgba(242,169,0,.6)}
+.unten{display:flex;justify-content:center;gap:.5rem}
+.unten div{background:var(--flaeche);border:1px solid var(--linie);border-radius:8px;padding:.15rem .6rem;font-size:.72rem;color:var(--text-leise)}
+.unten strong{color:var(--text-leise)}
+/* Karten */
+.mappe{margin-top:.45rem;border:2px dashed var(--linie);border-radius:8px;padding:.35rem .45rem}
+.mappe h2{font-size:.85rem;margin:0 0 .25rem;color:var(--text-leise)}
+.mappe .ablage{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:.3rem;min-height:3rem}
+.karte{position:relative;display:flex;align-items:center;gap:.35rem;background:#fff;border:2px solid var(--linie);border-radius:7px;padding:.2rem .35rem .2rem .2rem;font-size:.78rem;cursor:grab;touch-action:none;min-height:44px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.karte .nr{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:1.8rem;height:1.8rem;border-radius:5px;background:var(--blau);color:#fff;font-weight:700;font-size:.85rem}
+.karte .txt{line-height:1.15;flex:1;min-width:0;hyphens:auto;overflow-wrap:break-word}
+.karte .betrag{display:block;font-size:.72rem;color:var(--text-leise)}
+.karte[aria-pressed="true"]{border-color:var(--fokus);box-shadow:0 0 0 3px var(--fokus)}
+.karte.richtig{border-color:var(--gut)}
+.karte.richtig::after,.karte.offen::after{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.karte.richtig::after{content:"✓";background:var(--gut)}
+.karte.offen{border-color:var(--hinweis);border-style:dashed}
+.karte.offen::after{content:"?";background:var(--hinweis)}
+.karte .ekw{display:none;flex:none;font-weight:700;font-size:.75rem;padding:0 .25rem;border-radius:4px;white-space:nowrap}
+.zeige-ek .zone.input .karte .ekw{display:inline;color:var(--input);background:var(--input-hell)}
+.zeige-ek .zone.output .karte .ekw{display:inline;color:var(--output);background:var(--output-hell)}
+.zeige-ek .zone.fund .karte .ekw{display:inline;color:var(--blau);background:var(--blau-hell)}
+.geist{position:fixed;pointer-events:none;z-index:50;opacity:.92;transform:rotate(-2deg);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.platz{opacity:.3}
+.pop{animation:pop .55s ease}
+.wackel{animation:wackel .45s ease}
+.leuchten{animation:leuchten 1.6s ease 2}
+@keyframes pop{0%{transform:scale(.85)}55%{transform:scale(1.1);box-shadow:0 0 0 8px rgba(27,115,64,.25)}100%{transform:scale(1)}}
+@keyframes wackel{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes auf{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes leuchten{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 7px rgba(27,115,64,.4)}}
+/* Rückmeldung als schmale Zeile unten, damit nichts verrutscht */
+#rueckmeldung{position:fixed;left:50%;bottom:.6rem;transform:translateX(-50%);z-index:40;margin:0;max-width:min(52rem,calc(100% - 2rem));box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:.9rem;padding:.4rem .8rem}
+/* Merksatz legt sich über die (dann leere) Belegmappe */
+.mappe.leer{display:none}
+.fuss{margin-top:.5rem;padding-top:.3rem;font-size:.68rem}
+.fuss p{display:inline;margin:0 .6rem 0 0}
+@media (min-width:821px) and (max-height:760px){html{font-size:max(12px,1.8vh)}}
+@media (max-width:820px){
+  html{font-size:15px}
+  .haus{grid-template-columns:1fr}
+  .markt{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .zweispaltig,.konten{grid-template-columns:1fr}
+  #rueckmeldung{position:static;transform:none;max-width:none;margin:.5rem 0}
+  .fuss p{display:block}
+}
+</style>
+</head>
+<body>
+<div class="seite">
+  <header class="kopf">
+    <div>
+      <p class="kontext">Bankkaufleute · Lernfeld 7 · LS 05 · Doppelstunde 1./2.</p>
+      <h1>Das Haus der Bank: Wo wirken die Belege?</h1>
+      <p class="leitfrage">Schuldet die Bank einen Preis für eine verbrauchte Leistung anderer, berechnet sie einen Preis für eine eigene Leistung – oder ändern sich nur Vermögen und Finanzierung?</p>
+    </div>
+    <div class="leiste" role="toolbar" aria-label="Bedienung">
+      <button type="button" class="zweit" id="btn-frage" title="Denkfrage zur gewählten Karte">Denkfrage</button>
+      <button type="button" class="zweit" id="btn-reset">Neu beginnen</button>
+      <button type="button" class="zweit" id="btn-voll">Vollbild</button>
+      <span class="zaehler" id="zaehler" aria-live="polite">0 von 12 im Haus</span>
+      <span class="besprechung" id="besprechung" hidden>
+        <span class="trenner" aria-hidden="true"></span>
+        <button type="button" class="zweit" id="btn-begriffe" aria-pressed="false">Aufwand, Ertrag und Eigenkapital</button>
+        <button type="button" class="zweit" id="btn-erfolg" aria-pressed="false">Erfolg: Gewinn oder Verlust</button>
+      </span>
+    </div>
+  </header>
+
+  <main id="inhalt">
+    <div id="buehne">
+      <div class="haus">
+        <aside class="markt" aria-label="Beschaffungsmarkt">
+          <div><h2>Beschaffungs&shy;markt</h2>
+            <div class="wer">Sparer und<br>Einleger<br>Mitarbeitende<br>Lieferanten und<br>Dienstleister</div></div>
+          <p class="rolle">→ erbringen Leistungen für die Bank</p>
+          <p class="rolle">⇄ zahlen ein, heben ab, liefern Ausstattung</p>
+        </aside>
+
+        <div class="mitte">
+          <div class="dach" aria-hidden="true">Minibank AG</div>
+          <section class="stock" aria-label="Leistungsprozess">
+            <h2>Leistungsprozess</h2>
+            <div class="zweispaltig">
+              <div class="zone input" data-zone="input" role="group" aria-label="Input: Leistungen anderer, die die Bank verbraucht">
+                <div class="zkopf"><div class="ztitel">Input</div><div class="zsub">Leistungen anderer, die die Bank verbraucht</div><div class="begriff">= Aufwand</div></div>
+                <ul class="beispiele"><li>Zinsen für das Geld der Sparer und Einleger</li><li>Gehälter für die Arbeit der Mitarbeitenden</li><li>Rechnungen für Dienstleistungen und Sachmittel, die sofort verbraucht werden</li></ul>
+                <div class="ablage"></div>
+              </div>
+              <div class="zone output" data-zone="output" role="group" aria-label="Output: Leistungen, die die Bank erbringt">
+                <div class="zkopf"><div class="ztitel">Output</div><div class="zsub">Leistungen, die die Bank erbringt</div><div class="begriff">= Ertrag</div></div>
+                <ul class="beispiele"><li>Zinsen für Kredite</li><li>Entgelte für Kontoführung und Zahlungsverkehr</li><li>Provisionen für Wertpapierorders</li></ul>
+                <div class="ablage"></div>
+              </div>
+            </div>
+          </section>
+          <div class="erfolgsband" aria-live="polite"><span>Ertrag mehrt ↑ das Eigenkapital</span><span aria-hidden="true">·</span><span>Aufwand mindert ↓ das Eigenkapital</span><span aria-hidden="true">·</span><span>Fundament allein: Eigenkapital =</span></div>
+          <div class="erfolgsband2" aria-live="polite"><span>Erfolg = Ertrag − Aufwand</span><span aria-hidden="true">·</span><span>Ertrag &gt; Aufwand: Gewinn, Eigenkapital ↑</span><span aria-hidden="true">·</span><span>Aufwand &gt; Ertrag: Verlust, Eigenkapital ↓</span></div>
+          <section class="stock fundament" aria-label="Fundament: Vermögen und Finanzierung">
+            <h2>Fundament: Vermögen und Finanzierung</h2>
+            <div class="zone fund" data-zone="fund" role="group" aria-label="Fundament">
+              <div class="konten">
+                <div><strong>Vermögen – was die Bank hat</strong>Kasse · Bundesbank · Debitoren · Kundendarlehen · Wertpapiere · Betriebs- und Geschäftsausstattung</div>
+                <div><strong>Finanzierung – woher das Geld kommt</strong>Kreditoren · Spareinlagen · <span class="ek" id="ek">Eigenkapital</span></div>
+              </div>
+              <div class="ablage"></div>
+            </div>
+          </section>
+          <div class="unten" aria-label="Weitere Beteiligte">
+            <div><span aria-hidden="true">⇅ </span><strong>Eigentümer (Aktionäre)</strong>: bringen Eigenkapital ein, erhalten Gewinnanteile</div>
+            <div><span aria-hidden="true">⇅ </span><strong>Staat (Finanzamt)</strong>: erhält Steuern</div>
+          </div>
+        </div>
+
+        <aside class="markt" aria-label="Absatzmarkt">
+          <div><h2>Absatz&shy;markt</h2>
+            <div class="wer">Kreditnehmer<br>Kontoinhaber<br>Wertpapier&shy;kunden</div></div>
+          <p class="rolle">→ nehmen Leistungen der Bank in Anspruch</p>
+          <p class="rolle">⇄ erhalten Kredite und tilgen sie</p>
+        </aside>
+      </div>
+
+      <section class="mappe" data-zone="mappe" aria-label="Belegmappe">
+        <h2>Belegmappe 16.–31.12.2026 <span class="nur-sr">: Karte auswählen, dann Bereich im Haus wählen</span></h2>
+        <div class="ablage" id="mappe"></div>
+      </section>
+    </div>
+
+    <div id="rueckmeldung" class="rueckmeldung" role="status" aria-live="polite"></div>
+
+  </main>
+
+  <footer class="fuss">
+    <p>BBS Wechloy · Bankkaufleute, LF 7, LS 05 · Minibank AG (fiktiv) · Stand: Schuljahr 2026/27</p>
+    <p>Erst einigen, dann ziehen. Karte ziehen oder antippen, dann Bereich antippen. Geprüft wird, wenn alle Karten im Haus liegen; ↻ = nach der Prüfung umgelegt.</p>
+    <p>Erstellt mit KI-Unterstützung, fachlich geprüft durch die Lehrkraft.<button type="button" class="zweit" id="btn-lk" aria-pressed="false" hidden>Lehrkraft: Besprechung</button></p>
+  </footer>
+</div>
+
+<script>
+/* ===== Lernelement-Grundfunktionen (nicht entfernen) ===== */
+const Lernelement = (() => {
+  const KONFIG = {
+    bestehensgrenze: 0.6,
+    speicherSchluessel: "bbsw-" + (document.title || "element").toLowerCase().replace(/[^a-z0-9]+/g, "-")
+  };
+  let api = null, beendet = false;
+  function findeApi(w) {
+    let tiefe = 0;
+    try {
+      while (w && !w.API && w.parent && w.parent !== w && tiefe < 10) { w = w.parent; tiefe++; }
+      return (w && w.API) ? w.API : null;
+    } catch (e) { return null; }
+  }
+  function start() {
+    api = findeApi(window) || (window.opener ? findeApi(window.opener) : null);
+    if (api) {
+      try {
+        api.LMSInitialize("");
+        const st = api.LMSGetValue("cmi.core.lesson_status");
+        if (!st || st === "not attempted") api.LMSSetValue("cmi.core.lesson_status", "incomplete");
+        api.LMSCommit("");
+      } catch (e) { api = null; }
+    }
+  }
+  function melden(punkte, maxPunkte) {
+    if (!api || !maxPunkte) return false;
+    const prozent = Math.round((punkte / maxPunkte) * 100);
+    try {
+      api.LMSSetValue("cmi.core.score.min", "0");
+      api.LMSSetValue("cmi.core.score.max", "100");
+      api.LMSSetValue("cmi.core.score.raw", String(prozent));
+      api.LMSSetValue("cmi.core.lesson_status", prozent / 100 >= KONFIG.bestehensgrenze ? "passed" : "failed");
+      api.LMSCommit("");
+      return true;
+    } catch (e) { return false; }
+  }
+  function beenden() {
+    if (api && !beendet) { try { api.LMSFinish(""); } catch (e) {} beendet = true; }
+  }
+  window.addEventListener("pagehide", beenden);
+  window.addEventListener("beforeunload", beenden);
+  start();
+  function mischen(liste) {
+    const a = liste.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  function box() {
+    let b = document.getElementById("rueckmeldung");
+    if (!b) {
+      b = document.createElement("div"); b.id = "rueckmeldung"; b.className = "rueckmeldung";
+      b.setAttribute("role", "status"); b.setAttribute("aria-live", "polite");
+      document.getElementById("inhalt").append(b);
+    }
+    return b;
+  }
+  function rueckmeldung(art, text) {
+    const boxEl = box();
+    const marke = { gut: "✓ Richtig.", fehler: "✗ Noch nicht.", info: "Hinweis:" }[art] || "";
+    boxEl.className = "rueckmeldung " + art;
+    boxEl.innerHTML = "";
+    const m = document.createElement("span"); m.className = "marke"; m.textContent = marke;
+    const t = document.createElement("span"); t.innerHTML = text;
+    boxEl.append(m, t);
+  }
+  function platzieren(nachElement) { const b = box(); if (nachElement) nachElement.after(b); else document.getElementById("inhalt").append(b); }
+  function leeren() { const b = box(); b.className = "rueckmeldung"; b.innerHTML = ""; }
+  function fortschritt() {}
+  function merken(daten) { try { localStorage.setItem(KONFIG.speicherSchluessel, JSON.stringify(daten)); } catch (e) {} }
+  function laden() { try { return JSON.parse(localStorage.getItem(KONFIG.speicherSchluessel)); } catch (e) { return null; } }
+  function vergessen() { try { localStorage.removeItem(KONFIG.speicherSchluessel); } catch (e) {} }
+  const reduzierteBewegung = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function geld(betrag) { return betrag.toLocaleString("de-DE", { style: "currency", currency: "EUR" }); }
+  return { KONFIG, melden, mischen, rueckmeldung, platzieren, leeren, fortschritt, merken, laden, vergessen, reduzierteBewegung, geld, istScorm: () => !!api };
+})();
+
+/* ===== Elementlogik: Haus der Bank ===== */
+// Belege der Mappe (Minibank AG, 16.–31.12.2026) mit richtiger Zone. Von der Lehrkraft zu prüfen.
+const WERTE = {
+  // Reihenfolge wie in der Belegmappe: erst eindeutige Fälle, dann Grenzfälle
+  belege: [
+    { id: "1",  titel: "Bareinzahlungen auf Sparkonten",     betrag: 12400,  zone: "fund" },
+    { id: "2",  titel: "Gehaltszahlung Dezember",            betrag: 56000,  zone: "input" },
+    { id: "3",  titel: "Entgelte Kontoführung 4. Quartal",   betrag: 81000,  zone: "output" },
+    { id: "4",  titel: "Orderprovisionen Wertpapiere",       betrag: 11000,  zone: "output" },
+    { id: "5",  titel: "IT-Betreuung 4. Quartal (Rechnung)", betrag: 21750,  zone: "input" },
+    { id: "6",  titel: "Weihnachtsgeschenke Mitarbeitende",  betrag: 346.68, zone: "input" },
+    { id: "7",  titel: "Notebooks (Rechnung)",               betrag: 7140,   zone: "fund" },
+    { id: "8",  titel: "Auszahlung Baufinanzierung Tönjes",  betrag: 320000, zone: "fund" },
+    { id: "9a", titel: "Rateneinzug: Zinsanteil",            betrag: 39000,  zone: "output" },
+    { id: "9b", titel: "Rateneinzug: Tilgungsanteil",        betrag: 51000,  zone: "fund" },
+    { id: "10", titel: "Zinsabschluss Kontokorrent 4. Quartal", betrag: 155000, zone: "output" },
+    { id: "11", titel: "Zinsgutschrift Sparkonten",          betrag: 423000, zone: "input" }
+  ],
+  // Denkfragen für die Lehrkraft, falls die Klasse sich auf eine unpassende Zuordnung einigt. Sie verraten die Lösung nicht.
+  impulse: {
+    "1": "Muss die Bank das Geld zurückzahlen? Was hat sie dann, und was schuldet sie?",
+    "2": "Wessen Leistung hat die Bank hier eingesetzt?",
+    "3": "Wer hat hier eine Leistung erbracht: die Bank oder ein anderer?",
+    "4": "Wer hat hier eine Leistung erbracht: die Bank oder ein anderer?",
+    "5": "Hat die Bank hier eine Leistung anderer eingesetzt, die damit verbraucht ist?",
+    "6": "Hat die Bank hier etwas eingesetzt, das damit verbraucht ist?",
+    "7": "Sind die Notebooks nach dem Kauf verbraucht?",
+    "8": "Muss der Kunde das Geld zurückzahlen? Was hat die Bank nach der Auszahlung im Haus?",
+    "9a": "Wofür zahlt der Kreditnehmer die Zinsen?",
+    "9b": "Die Tilgung verringert die Schuld des Kunden. Hat die Bank dafür eine Leistung erbracht?",
+    "10": "Welche Leistung hat die Bank dem Kunden erbracht? Ändert es etwas, dass über das Kundenkonto bezahlt wird?",
+    "11": "Welche Leistung hat die Bank hier genutzt? Und wie wird sie bezahlt?"
+  }
+};
+const ZONEN = { input: "Input", output: "Output", fund: "Fundament", mappe: "Belegmappe" };
+const EKW = { input: "EK ↓", output: "EK ↑", fund: "EK =" };
+const GESAMT = WERTE.belege.length;
+
+let gewaehlt = null, letzte = null;
+const mappe = document.getElementById("mappe");
+const ablage = z => z === "mappe" ? mappe : document.querySelector('.zone[data-zone="' + z + '"] .ablage');
+const passt = k => k.closest(".zone") && k.dataset.ziel === k.closest(".zone").dataset.zone;
+
+function karteBauen(b) {
+  const k = document.createElement("div");
+  k.className = "karte"; k.tabIndex = 0; k.dataset.id = b.id; k.dataset.ziel = b.zone;
+  k.setAttribute("role", "button"); k.setAttribute("aria-pressed", "false");
+  k.setAttribute("aria-label", "Beleg " + b.id + ": " + b.titel + ", " + Lernelement.geld(b.betrag));
+  k.innerHTML = '<span class="nr">' + b.id + '</span><span class="txt">' + b.titel + '<span class="betrag">' + Lernelement.geld(b.betrag) + '</span></span><span class="ekw" aria-hidden="true"></span>';
+  k.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehlen(k); } });
+  k.addEventListener("pointerdown", ziehenStart);
+  return k;
+}
+
+function waehlen(k) {
+  if (gewaehlt && gewaehlt !== k) gewaehlt.setAttribute("aria-pressed", "false");
+  const an = k.getAttribute("aria-pressed") !== "true";
+  k.setAttribute("aria-pressed", String(an));
+  gewaehlt = an ? k : null;
+  if (an) letzte = k;
+  document.querySelectorAll(".zone, .mappe").forEach(z => z.classList.toggle("waehlbar", !!gewaehlt));
+  if (gewaehlt) Lernelement.rueckmeldung("info", "Beleg " + k.dataset.id + " gewählt. Jetzt den Bereich im Haus antippen.");
+  else Lernelement.leeren();
+}
+
+/* Ablegen ohne Bewertung: Erst wenn alle Karten liegen, wird geprüft. */
+let nachFehlpruefung = false;
+function ablegen(k, zone) {
+  const vorher = k.closest(".zone") ? k.closest(".zone").dataset.zone : "mappe";
+  ablage(zone).append(k);
+  k.classList.remove("richtig", "pop");
+  k.setAttribute("aria-pressed", "false"); gewaehlt = null;
+  document.querySelectorAll(".waehlbar").forEach(z => z.classList.remove("waehlbar"));
+  k.querySelector(".ekw").textContent = EKW[zone] || "";
+  // Nach einer Prüfung mit Fehlern wird jede umgelegte Karte gekennzeichnet: Darüber spricht die Klasse in der Besprechung.
+  if (nachFehlpruefung && vorher !== zone) k.classList.add("umgelegt");
+  letzte = zone === "mappe" ? null : k;
+  Lernelement.leeren();
+  zaehlen();
+}
+
+function zaehlen() {
+  document.querySelector(".mappe").classList.toggle("leer", !mappe.children.length);
+  const karten = [...document.querySelectorAll(".zone .karte")];
+  document.getElementById("zaehler").textContent = karten.length + " von " + GESAMT + " im Haus";
+  karten.forEach(k => k.classList.remove("richtig"));
+  if (karten.length < GESAMT) return;
+  const falsch = karten.filter(k => !passt(k)).length;
+  if (!falsch) {
+    karten.forEach((k, i) => {
+      k.classList.add("richtig"); void k.offsetWidth;
+      if (!Lernelement.reduzierteBewegung) { k.style.animationDelay = (i * 60) + "ms"; k.classList.add("pop"); }
+    });
+    if (!Lernelement.reduzierteBewegung) document.querySelectorAll(".zone").forEach(z => { z.classList.remove("leuchten"); void z.offsetWidth; z.classList.add("leuchten"); });
+    Lernelement.rueckmeldung("gut", (nachFehlpruefung
+      ? "Alle Belege liegen richtig. Klären Sie, warum die Karten mit ↻ jetzt richtig liegen. "
+      : "Alle Belege liegen richtig. ")
+      + "Klappen Sie die Belegmappe zu.<br><strong>Zusatzauftrag, falls Zeit bleibt:</strong> Formulieren Sie eine Regel, an der eine neue Kollegin erkennt, ob ein Beleg das Eigenkapital verändert, und notieren Sie sie. Wenn das Plenum beginnt, hören Sie einfach auf, auch mitten im Satz.");
+  } else {
+    nachFehlpruefung = true;
+    // Bewusst ohne Markierung: Die Gruppe prüft ihre Zuordnungen selbst noch einmal.
+    Lernelement.rueckmeldung("info", (falsch === 1 ? "Ein Beleg passt" : falsch + " Belege passen") + " noch nicht. Gehen Sie Ihre Zuordnungen noch einmal durch. Wo waren Sie unsicher? Zu jeder Karte gibt es eine <strong>Denkfrage</strong>.");
+  }
+}
+
+/* Denkfrage zur gewählten Karte – verrät nicht, ob die Karte richtig liegt */
+function denkfrage() {
+  const k = gewaehlt || letzte;
+  if (!k) { Lernelement.rueckmeldung("info", "Erst eine Karte antippen, dann <strong>Denkfrage</strong>."); return; }
+  Lernelement.rueckmeldung("info", "Beleg " + k.dataset.id + ": " + WERTE.impulse[k.dataset.id]);
+}
+
+/* Ziehen mit Zeiger (Maus, Stift, Finger); kurzer Klick = Auswahl */
+let zug = null;
+function ziehenStart(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  if (zug) return; // nur eine Karte gleichzeitig, auch wenn zwei Finger auf dem iPad liegen
+  const k = e.currentTarget;
+  zug = { k, x: e.clientX, y: e.clientY, geist: null };
+  k.setPointerCapture(e.pointerId);
+  k.addEventListener("pointermove", ziehen);
+  k.addEventListener("pointerup", ziehenEnde, { once: true });
+}
+function ziehen(e) {
+  if (!zug) return;
+  if (!zug.geist && Math.hypot(e.clientX - zug.x, e.clientY - zug.y) > 6) {
+    const r = zug.k.getBoundingClientRect();
+    zug.dx = zug.x - r.left; zug.dy = zug.y - r.top;
+    zug.geist = zug.k.cloneNode(true); zug.geist.classList.add("geist"); zug.geist.style.width = r.width + "px";
+    document.body.append(zug.geist); zug.k.classList.add("platz");
+  }
+  if (zug.geist) {
+    zug.geist.style.left = (e.clientX - zug.dx) + "px"; zug.geist.style.top = (e.clientY - zug.dy) + "px";
+    document.querySelectorAll(".zone.ziel, .mappe.ziel").forEach(z => z.classList.remove("ziel"));
+    const z = zoneUnter(e.clientX, e.clientY); if (z) z.classList.add("ziel");
+  }
+}
+function zoneUnter(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return el ? el.closest(".zone, .mappe") : null;
+}
+function ziehenEnde(e) {
+  const k = zug.k; k.removeEventListener("pointermove", ziehen);
+  if (zug.geist) {
+    zug.geist.remove(); k.classList.remove("platz");
+    document.querySelectorAll(".ziel").forEach(z => z.classList.remove("ziel"));
+    const z = zoneUnter(e.clientX, e.clientY);
+    if (z) ablegen(k, z.dataset.zone);
+  } else {
+    waehlen(k);
+  }
+  zug = null;
+}
+/* Klick auf einen Bereich, wenn eine Karte gewählt ist (auch per Tastatur) */
+document.querySelectorAll(".zone, .mappe").forEach(z => {
+  z.addEventListener("click", e => { if (gewaehlt && !e.target.closest(".karte")) ablegen(gewaehlt, z.dataset.zone); });
+  z.tabIndex = 0;
+  z.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && gewaehlt && e.target === z) { e.preventDefault(); ablegen(gewaehlt, z.dataset.zone); } });
+});
+
+/* Moderationsleiste */
+const buehne = document.getElementById("buehne");
+function umschalten(btn, klasse, ziel) {
+  const an = btn.getAttribute("aria-pressed") !== "true";
+  btn.setAttribute("aria-pressed", String(an));
+  ziel.classList.toggle(klasse, an);
+  return an;
+}
+document.getElementById("btn-frage").addEventListener("click", denkfrage);
+document.getElementById("btn-lk").addEventListener("click", e => {
+  const an = e.currentTarget.getAttribute("aria-pressed") !== "true";
+  e.currentTarget.setAttribute("aria-pressed", String(an));
+  document.getElementById("besprechung").hidden = !an;
+});
+document.getElementById("btn-begriffe").addEventListener("click", e => { const an = umschalten(e.currentTarget, "zeige-begriffe", buehne); buehne.classList.toggle("zeige-ek", an); });
+document.getElementById("btn-erfolg").addEventListener("click", e => { umschalten(e.currentTarget, "zeige-erfolg", buehne); });
+document.getElementById("btn-reset").addEventListener("click", start);
+document.getElementById("btn-voll").addEventListener("click", () => {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => Lernelement.rueckmeldung("info", "Vollbild ist hier gesperrt. Element in neuem Fenster öffnen und F11 drücken."));
+  } catch (e) { Lernelement.rueckmeldung("info", "Vollbild ist hier gesperrt. Element in neuem Fenster öffnen und F11 drücken."); }
+});
+
+function start() {
+  document.querySelectorAll(".karte").forEach(k => k.remove());
+  WERTE.belege.forEach(b => mappe.append(karteBauen(b)));
+  buehne.classList.remove("zeige-begriffe", "zeige-ek", "zeige-erfolg");
+  document.getElementById("btn-begriffe").setAttribute("aria-pressed", "false");
+  document.getElementById("btn-erfolg").setAttribute("aria-pressed", "false");
+  gewaehlt = null; letzte = null; nachFehlpruefung = false;
+  Lernelement.leeren(); zaehlen();
+}
+start();
+</script>
+</body>
+</html>
