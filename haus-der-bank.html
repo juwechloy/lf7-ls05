@@ -148,7 +148,7 @@ button.zweit[aria-pressed="true"],button.zweit[aria-pressed="true"]:hover{backgr
     <div>
       <p class="kontext">Bankkaufleute · Lernfeld 7 · LS 05 · Doppelstunde 1./2.</p>
       <h1>Das Haus der Bank: Wo wirken die Belege?</h1>
-      <p class="leitfrage">Schuldet die Bank einen Preis für eine verbrauchte Leistung anderer, berechnet sie einen Preis für eine eigene Leistung – oder ändern sich nur Vermögen und Finanzierung?</p>
+      <p class="leitfrage">Belege im Haus der Bank einordnen</p>
     </div>
     <div class="leiste" role="toolbar" aria-label="Bedienung">
       <button type="button" class="zweit" id="btn-frage" title="Denkfrage zur gewählten Karte">Denkfrage</button>
@@ -180,12 +180,10 @@ button.zweit[aria-pressed="true"],button.zweit[aria-pressed="true"]:hover{backgr
             <div class="zweispaltig">
               <div class="zone input" data-zone="input" role="group" aria-label="Input: Leistungen anderer, die die Bank verbraucht">
                 <div class="zkopf"><div class="ztitel">Input</div><div class="zsub">Leistungen anderer, die die Bank verbraucht</div><div class="begriff">= Aufwand</div></div>
-                <ul class="beispiele"><li>Zinsen für das Geld der Sparer und Einleger</li><li>Gehälter für die Arbeit der Mitarbeitenden</li><li>Rechnungen für Dienstleistungen und Sachmittel, die sofort verbraucht werden</li></ul>
                 <div class="ablage"></div>
               </div>
               <div class="zone output" data-zone="output" role="group" aria-label="Output: Leistungen, die die Bank erbringt">
                 <div class="zkopf"><div class="ztitel">Output</div><div class="zsub">Leistungen, die die Bank erbringt</div><div class="begriff">= Ertrag</div></div>
-                <ul class="beispiele"><li>Zinsen für Kredite</li><li>Entgelte für Kontoführung und Zahlungsverkehr</li><li>Provisionen für Wertpapierorders</li></ul>
                 <div class="ablage"></div>
               </div>
             </div>
@@ -322,7 +320,7 @@ const WERTE = {
     { id: "4",  titel: "Orderprovisionen Wertpapiere",       betrag: 11000,  zone: "output" },
     { id: "5",  titel: "IT-Betreuung 4. Quartal (Rechnung)", betrag: 21750,  zone: "input" },
     { id: "6",  titel: "Weihnachtsgeschenke Mitarbeitende",  betrag: 346.68, zone: "input" },
-    { id: "7",  titel: "Notebooks (Rechnung)",               betrag: 7140,   zone: "fund" },
+    { id: "7",  titel: "Schreibtische (Rechnung)",           betrag: 7140,   zone: "fund" },
     { id: "8",  titel: "Auszahlung Baufinanzierung Tönjes",  betrag: 320000, zone: "fund" },
     { id: "9a", titel: "Rateneinzug: Zinsanteil",            betrag: 39000,  zone: "output" },
     { id: "9b", titel: "Rateneinzug: Tilgungsanteil",        betrag: 51000,  zone: "fund" },
@@ -337,9 +335,9 @@ const WERTE = {
     "4": "Wer hat hier eine Leistung erbracht: die Bank oder ein anderer?",
     "5": "Hat die Bank hier eine Leistung anderer eingesetzt, die damit verbraucht ist?",
     "6": "Hat die Bank hier etwas eingesetzt, das damit verbraucht ist?",
-    "7": "Sind die Notebooks nach dem Kauf verbraucht?",
+    "7": "Sind die Schreibtische nach dem Kauf verbraucht? Was hat die Bank danach in der Bilanz?",
     "8": "Muss der Kunde das Geld zurückzahlen? Was hat die Bank nach der Auszahlung im Haus?",
-    "9a": "Wofür zahlt der Kreditnehmer die Zinsen?",
+    "9a": "Wofür erhält die Bank die Zinsen vom Kreditnehmer?",
     "9b": "Die Tilgung verringert die Schuld des Kunden. Hat die Bank dafür eine Leistung erbracht?",
     "10": "Welche Leistung hat die Bank dem Kunden erbracht? Ändert es etwas, dass über das Kundenkonto bezahlt wird?",
     "11": "Welche Leistung hat die Bank hier genutzt? Und wie wird sie bezahlt?"

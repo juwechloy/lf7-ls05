@@ -86,6 +86,8 @@ select.nok,input.nok{border-color:var(--fehler);background:var(--fehler-hell)}
 .luecke select{min-height:38px;padding:.2rem .4rem;margin:0 .15rem}
 /* Tabellen */
 .tabelle-wrap{overflow-x:auto;margin:.6rem 0}
+@media (max-width:560px){.s1tab thead{display:none}.s1tab tr{display:block;border-bottom:1px solid #C3CCD2;padding:.4rem 0}.s1tab td{display:block;border:0!important;padding:.15rem 0!important;text-align:left!important}.s1tab select{width:100%}}
+h2[tabindex="-1"]:focus{outline:none}
 table{border-collapse:collapse;width:100%;font-size:.95rem}
 th,td{border:1px solid var(--linie);padding:.4rem .55rem;text-align:left;vertical-align:top}
 th{background:var(--blau);color:#fff}
@@ -188,8 +190,8 @@ details summary{cursor:pointer;font-weight:700;color:var(--blau)}
   </header>
   <main id="inhalt">
     <section class="situation" aria-label="Situation">
-<p>Frau Becker kommt an Ihren Platz: „Im Haus der Bank haben Sie gesehen, dass die Gehaltszahlung und viele andere Belege unser Eigenkapital verändern. Mit unseren Bestandskonten können wir sie aber nicht so buchen, dass man sieht, wodurch sich das Eigenkapital ändert. Wie Banken das lösen, erarbeiten Sie jetzt selbst.“</p>
-<p class="auftrag">Arbeiten Sie die Stationen 1 bis 4 der Reihe nach durch, allein oder zu zweit. Was Sie erarbeiten, sammelt sich automatisch in einer Informationsschrift. Am Ende laden Sie sie als PDF herunter. Sie brauchen sie für die Prüfbuchungen und die Hausaufgabe. Wer danach noch Zeit hat, macht mit „Fehler finden“ weiter.</p>
+<p>Frau Becker kommt an Ihren Platz: „Im Haus der Bank haben Sie gesehen, dass die Gehaltszahlung und viele andere Geschäftsfälle unser Eigenkapital verändern. Mit unseren Bestandskonten können wir sie aber nicht so buchen, dass man sieht, wodurch sich das Eigenkapital ändert. Wie Banken das lösen, erarbeiten Sie jetzt selbst.“</p>
+<p class="auftrag">Arbeiten Sie die Stationen 1 bis 4 der Reihe nach durch, allein oder zu zweit. Was Sie erarbeiten, sammelt sich automatisch in einer Informationsschrift. Am Ende laden Sie sie als PDF herunter. Sie brauchen sie für die Prüfbuchungen (Arbeitsauftrag 4) und die Hausaufgabe. Wer danach noch Zeit hat, macht mit „Fehler finden“ weiter.</p>
     </section>
     <nav aria-label="Stationen"><ol class="stationen" id="stationen"></ol></nav>
     <div id="element"></div>
@@ -257,7 +259,7 @@ const KONTEN = {
   "Bundesbank": { art: "A", info: "Guthaben der Minibank bei der Deutschen Bundesbank" },
   "Debitoren": { art: "A", info: "Forderungen an Kundinnen und Kunden, z. B. überzogene Girokonten und Kredite" },
   "Wertpapiere": { art: "A", info: "Wertpapiere im Eigenbestand der Bank" },
-  "BGA": { art: "A", info: "Betriebs- und Geschäftsausstattung, z. B. Computer, Geldautomaten, Möbel" },
+  "BGA": { art: "A", info: "Betriebs- und Geschäftsausstattung, z. B. Geldautomaten, Möbel, Firmenwagen" },
   "Kreditoren": { art: "P", info: "Guthaben auf Girokonten: Verbindlichkeiten der Bank gegenüber der Kundschaft" },
   "Spareinlagen": { art: "P", info: "Guthaben auf Sparkonten: Verbindlichkeiten der Bank" },
   "Eigenkapital": { art: "P", info: "Kapital der Eigentümer" }
@@ -347,7 +349,7 @@ function mc(frage, optionen, beiRichtig, misch = true) {
 }
 
 /* Lückentext mit Auswahlfeldern. teile: Strings oder {opts:[...], r: index} */
-function lueckentext(titel, teile, beiFertig, klasse = "baustein") {
+function lueckentext(titel, teile, beiFertig, klasse = "baustein", okText = "Dieser Abschnitt steht jetzt in Ihrer Informationsschrift.") {
   const wrap = el("div", { class: klasse }, el("p", { class: "titel" }, titel));
   const p = el("p", { class: "luecke" });
   const selects = [];
@@ -362,7 +364,7 @@ function lueckentext(titel, teile, beiFertig, klasse = "baustein") {
     let fehler = 0;
     selects.forEach(s => { const ok = s.value === String(s.dataset.r); s.classList.toggle("ok", ok); s.classList.toggle("nok", !ok); if (!ok) fehler++; });
     if (fehler) Lernelement.rueckmeldung(fb, "fehler", fehler + (fehler === 1 ? " Lücke ist" : " Lücken sind") + " noch nicht richtig (rot markiert).");
-    else { Lernelement.rueckmeldung(fb, "gut", "Dieser Abschnitt steht jetzt in Ihrer Informationsschrift."); selects.forEach(s => s.disabled = true); pruefen.disabled = true; if (beiFertig) beiFertig(); }
+    else { Lernelement.rueckmeldung(fb, "gut", okText); selects.forEach(s => s.disabled = true); pruefen.disabled = true; if (beiFertig) beiFertig(); }
   });
   wrap.append(p, el("div", { class: "aktionen" }, pruefen), fb);
   return wrap;
@@ -542,12 +544,12 @@ const KEY = "bbsw-lf07-ls05-teil8";
 KONTEN["Kundendarlehen"] = { art: "A", info: "Forderungen aus Darlehen an Kundinnen und Kunden" };
 KONTEN["Debitoren"].info = "Forderungen an Kundinnen und Kunden aus Kontokorrentkrediten und überzogenen Girokonten";
 const ERFOLG = {
-  "Zinserträge": { art: "ER", info: "Zinsen für Darlehen und Überziehungen; im Modell auch Zinsen aus Wertpapieren und Bundesbankguthaben" },
+  "Zinserträge": { art: "ER", info: "Zinsen aus Darlehen, Kontokorrentkrediten und Überziehungen" },
   "Provisionserträge": { art: "ER", info: "Entgelte und Provisionen für Dienstleistungen, z. B. Kontoführung, Wertpapierorders" },
   "Mieterträge": { art: "ER", info: "Mieten für Räume, die die Bank vermietet" },
   "Zinsaufwendungen": { art: "AW", info: "Zinsen, die die Bank für Einlagen zahlt, z. B. auf Spar- und Tagesgeldkonten" },
-  "Gehälter": { art: "AW", info: "Arbeitsentgelte der Mitarbeitenden" },
-  "AVA": { art: "AW", info: "Allgemeine Verwaltungsaufwendungen (im Modell nur Sachaufwand): Dienstleistungen und Sachmittel, die sofort verbraucht werden, z. B. IT-Betreuung, Wartung, Strom, Toner. Im veröffentlichten Abschluss heißen sie andere Verwaltungsaufwendungen; zu den allgemeinen Verwaltungsaufwendungen zählen dort auch die Gehälter." }
+  "Gehälter": { art: "AW", info: "Arbeitsentgelte der Mitarbeitenden (im Modell: ausgezahlte Nettogehälter)" },
+  "AVA": { art: "AW", info: "Allgemeine Verwaltungsaufwendungen (im Modell nur Sachaufwand): Dienstleistungen und Sachmittel, die die Bank in kurzer Zeit verbraucht, z. B. IT-Betreuung, Wartung, Strom, Toner. Im veröffentlichten Abschluss heißen sie andere Verwaltungsaufwendungen; zu den allgemeinen Verwaltungsaufwendungen zählen dort auch die Gehälter." }
 };
 Object.assign(KONTEN, ERFOLG);
 const KONTENLISTE = ["Kasse", "Bundesbank", "Debitoren", "Kundendarlehen", "BGA", "Kreditoren", "Spareinlagen", "Eigenkapital",
@@ -564,15 +566,15 @@ const FAELLE = [
   { beleg: "Eingangsrechnung", kurz: "Toner für die Filialdrucker, Zahlung über die Bundesbank",
     text: "Rechnung des Bürofachhandels über Toner für die Filialdrucker, 238,00 €. Die Minibank zahlt über ihr Bundesbankkonto.", soll: "AVA", haben: "Bundesbank", betrag: 238, wirkung: "Aufwand: mindert das Eigenkapital",
     tipps: { BGA: "Toner wird beim Drucken verbraucht. Bleibt er als Ausstattung im Vermögen?" },
-    begr: "Die Bank kauft Toner, der beim Drucken verbraucht wird. Es bleibt kein Vermögenswert zurück: Aufwand, der das Eigenkapital mindert, also AVA im Soll. Bezahlt wird über das Bundesbankkonto, dessen Guthaben sinkt (Bundesbank im Haben)." },
-  { beleg: "Eingangsrechnung", kurz: "Multifunktionsdrucker gekauft, Zahlung über die Bundesbank",
-    text: "Rechnung für einen neuen Multifunktionsdrucker, den die Filiale mehrere Jahre nutzen wird, 1.190,00 €. Zahlung über das Bundesbankkonto.", soll: "BGA", haben: "Bundesbank", betrag: 1190, wirkung: "erfolgsneutral",
-    tipps: { AVA: "Wird der Drucker mit dem Kauf verbraucht? Oder steht er danach im Vermögen der Bank?" },
-    begr: "Der Drucker wird nicht verbraucht, sondern mehrere Jahre genutzt. Er steht als Ausstattung im Vermögen: BGA steigt (Soll), das Bundesbankguthaben sinkt (Haben). Das Eigenkapital bleibt gleich, der Kauf ist erfolgsneutral. Erst der jährliche Wertverlust wird später zu Aufwand." },
+    begr: "Toner ist eine Leistung anderer, die die Bank beim Drucken verbraucht: Aufwand, der das Eigenkapital mindert, also AVA im Soll. Bezahlt wird über das Bundesbankkonto, dessen Guthaben sinkt (Bundesbank im Haben)." },
+  { beleg: "Eingangsrechnung", kurz: "Firmenwagen gekauft, Zahlung über die Bundesbank",
+    text: "Rechnung des Autohauses über einen Firmenwagen für die Baufinanzierungsberatung, den die Bank mehrere Jahre nutzen wird, 35.700,00 €. Zahlung über das Bundesbankkonto.", soll: "BGA", haben: "Bundesbank", betrag: 35700, wirkung: "erfolgsneutral",
+    tipps: { AVA: "Ist der Firmenwagen mit dem Kauf verbraucht? Oder steht er danach im Vermögen der Bank?" },
+    begr: "Der Firmenwagen wird nicht verbraucht, sondern mehrere Jahre gefahren. Er steht als Ausstattung im Vermögen: BGA steigt (Soll), das Bundesbankguthaben sinkt (Haben). Das Eigenkapital bleibt gleich, der Kauf ist erfolgsneutral. Erst der jährliche Wertverlust wird später zu Aufwand." },
   { beleg: "Zinsgutschrift", kurz: "Zinsen auf einem Sparkonto gutgeschrieben",
     text: "Die Minibank schreibt Frau Ahlers 45,00 € Zinsen auf ihrem Sparkonto gut.", soll: "Zinsaufwendungen", haben: "Spareinlagen", betrag: 45, wirkung: "Aufwand: mindert das Eigenkapital",
-    tipps: { Kreditoren: "Frau Ahlers spart. Auf welchem Konto führt die Bank Sparguthaben?", Zinserträge: "Hier erhält die Bank keine Zinsen, sie zahlt sie. Was bedeutet das für ihr Eigenkapital?", _neutral: "Es fließt kein Bargeld. Aber wofür zahlt die Bank die Zinsen, und was bedeutet das für ihr Eigenkapital?" },
-    begr: "Frau Ahlers hat der Bank ihr Geld überlassen, die Zinsen sind der Preis dafür. Die Bank nimmt also eine Leistung in Anspruch: Aufwand, der das Eigenkapital mindert (Zinsaufwendungen im Soll). Bezahlt wird nicht bar, sondern per Gutschrift: Die Bank schuldet Frau Ahlers jetzt mehr (Spareinlagen im Haben)." },
+    tipps: { Kreditoren: "Frau Ahlers spart. Welches Bestandskonto ist betroffen – und was geschieht außerdem mit dem Eigenkapital der Bank?", Zinserträge: "Hier erhält die Bank keine Zinsen – sie schreibt sie Frau Ahlers gut. Was bedeutet das für das Eigenkapital der Bank?", _neutral: "Es fließt kein Bargeld. Aber was hat Frau Ahlers der Bank überlassen, und was bedeutet das für das Eigenkapital der Bank?" },
+    begr: "Frau Ahlers hat der Bank ihr Geld überlassen, und die Bank hat es genutzt. Mit der Zinsgutschrift vergütet sie diese Leistung, die sie verbraucht hat: Aufwand, der das Eigenkapital mindert (Zinsaufwendungen im Soll). Bezahlt wird nicht bar, sondern per Gutschrift: Die Bank schuldet Frau Ahlers jetzt mehr (Spareinlagen im Haben)." },
   { beleg: "Lastschrift", kurz: "Darlehenszinsen vom Girokonto (Guthaben) eingezogen",
     text: "Für das Darlehen von Familie Grashorn zieht die Minibank 640,00 € Zinsen vom Girokonto der Familie ein. Das Girokonto hat Guthaben.", soll: "Kreditoren", haben: "Zinserträge", betrag: 640, wirkung: "Ertrag: mehrt das Eigenkapital",
     tipps: { Kundendarlehen: "Die Zinsen verringern nicht das Darlehen. Wovon werden sie abgebucht?", Debitoren: "Das Girokonto hat Guthaben. Auf welchem Konto führt die Bank Guthaben?" },
@@ -601,6 +603,7 @@ const AB_CSS = `
 .ab-tab th{background:#005196;color:#fff;text-align:left;padding:.3rem .55rem;border:1px solid #005196;font-weight:700}
 .ab-tab td{border:1px solid #A7B3B8;padding:.3rem .55rem;vertical-align:top}
 .ab-tab td.r{text-align:right;white-space:nowrap}
+@media (max-width:600px){.ab-tab{font-size:.85em}.ab-tab th,.ab-tab td{padding:.25rem .35rem}}
 .ab-tab td.k{font-weight:700}
 .ab-tabblock{break-inside:avoid;page-break-inside:avoid;margin:.4rem 0 .6rem}
 .ab-merke{border-left:3px solid #005196;padding:.15rem .8rem;margin:.45rem 0 .6rem;break-inside:avoid;page-break-inside:avoid}
@@ -658,14 +661,14 @@ const Schrift = (() => {
 const merkeAB = (...kids) => el("div", { class: "ab-merke" }, el("span", { class: "ab-label" }, "Merke"), el("p", { style: "margin:0" }, ...kids));
 const datenAB = (nr, titel, kopf, zeilen, klassen, breiten) => el("div", { class: "ab-tabblock" },
   el("div", { class: "ab-mat-t" }, el("b", null, nr), titel),
-  el("table", { class: "ab-tab" }, breiten ? el("colgroup", null, breiten.map(b => el("col", { style: "width:" + b }))) : null, el("thead", null, el("tr", null, kopf.map(k => el("th", null, k)))),
-    el("tbody", null, zeilen.map(z => el("tr", null, z.map((c, i) => el("td", { class: (klassen || [])[i] || null }, c)))))));
+  el("div", { class: "tabelle-wrap" }, el("table", { class: "ab-tab" }, breiten ? el("colgroup", null, breiten.map(b => el("col", { style: "width:" + b }))) : null, el("thead", null, el("tr", null, kopf.map(k => el("th", null, k)))),
+    el("tbody", null, zeilen.map(z => el("tr", null, z.map((c, i) => el("td", { class: (klassen || [])[i] || null }, c))))))));
 
 Schrift.INHALT.erfolgskonten = () => el("div", null,
-  el("p", null, "Geschäftsfälle, die das Eigenkapital verändern, bucht die Bank nicht direkt auf dem Eigenkapitalkonto. Dort wäre nur zu sehen, dass sich das Eigenkapital verändert hat, aber nicht wodurch. Deshalb führt sie Erfolgskonten als Unterkonten des Eigenkapitals: Aufwandskonten für Leistungen anderer, die sie in Anspruch nimmt und verbraucht, Ertragskonten für Leistungen, die sie selbst erbringt."),
+  el("p", null, "Geschäftsfälle, die das Eigenkapital verändern, bucht die Bank nicht direkt auf dem Eigenkapitalkonto. Dort stünden alle Mehrungen und Minderungen nur mit ihren Gegenkonten untereinander, und niemand könnte ablesen, wodurch sich das Eigenkapital verändert hat: mit welchen Leistungen die Bank Ertrag erzielt und welche Leistungen anderer sie verbraucht hat. Deshalb führt sie Erfolgskonten als Unterkonten des Eigenkapitals: Aufwandskonten für Leistungen anderer, die sie verbraucht, Ertragskonten für Leistungen, die sie selbst erbringt."),
   datenAB("Tabelle 1", "Erfolgskonten der Minibank AG", ["Konto", "Art", "Was darauf gebucht wird"],
     ["Gehälter", "Zinsaufwendungen", "AVA", "Zinserträge", "Provisionserträge", "Mieterträge"].map(k => [kontoName(k), ERFOLG[k].art === "AW" ? "Aufwand" : "Ertrag", ERFOLG[k].info]), ["k"], ["30%", "12%", "58%"]),
-  merkeAB("Für jede Aufwands- und Ertragsart gibt es ein eigenes Erfolgskonto. So lässt sich jederzeit ablesen, womit die Bank verdient und wofür sie Leistungen anderer in Anspruch nimmt."));
+  merkeAB("Für jede Aufwands- und Ertragsart gibt es ein eigenes Erfolgskonto. So lässt sich jederzeit ablesen, womit die Bank verdient und welche Leistungen anderer sie verbraucht."));
 Schrift.INHALT.regel = () => el("div", null,
   el("p", null, "Das Eigenkapital ist ein Passivkonto: Es nimmt im Haben zu und im Soll ab. Seine Unterkonten übernehmen diese Seiten."),
   el("div", { class: "ab-konten" },
@@ -679,9 +682,9 @@ Schrift.INHALT.buchen = () => el("div", null,
     FAELLE.map(f => [f.kurz, f.soll + " an " + f.haben, geld(f.betrag), f.wirkung]), [null, "k", "r"], ["34%", "34%", "12%", "20%"]));
 Schrift.INHALT.dreischritt = () => el("div", null,
   el("ol", null,
-    el("li", null, el("strong", null, "Verändert der Beleg das Eigenkapital? "), "Nimmt die Bank eine Leistung anderer in Anspruch, ohne dass ein Vermögenswert bleibt (im Haus der Bank: Input), ist es Aufwand. Erbringt sie selbst eine Leistung (Output), ist es Ertrag. Bleibt ein Gegenwert im Vermögen oder ändern sich nur Forderungen und Schulden (Fundament), ist der Beleg erfolgsneutral und wird nur auf Bestandskonten gebucht."),
+    el("li", null, el("strong", null, "Verändert der Beleg das Eigenkapital? "), "Verbraucht die Bank Leistungen anderer (im Haus der Bank: Input), ist es Aufwand. Erbringt sie selbst eine Leistung (Output), ist es Ertrag. Kauft die Bank etwas, das in ihrem Vermögen bleibt (z. B. den Firmenwagen), verleiht sie Geld, nimmt sie Geld an oder erhält sie es zurück (Fundament), ist der Beleg erfolgsneutral – er wird nur auf Bestandskonten gebucht."),
     el("li", null, el("strong", null, "Welches Erfolgskonto? "), "Für jede Aufwands- und Ertragsart gibt es ein eigenes Konto (Tabelle 1)."),
-    el("li", null, el("strong", null, "Welche Seite? "), "Aufwand im Soll, Ertrag im Haben. Das Gegenkonto ist ein Bestandskonto. Dort zeigt sich die Zahlung als Mehrung oder Minderung, wie Sie es aus Lernsituation 4 kennen.")),
+    el("li", null, el("strong", null, "Welche Seite? "), "Aufwand im Soll, Ertrag im Haben. Das Gegenkonto ist ein Bestandskonto. Dort zeigt sich als Mehrung oder Minderung, wie der Vorgang abgewickelt wird, wie Sie es aus Lernsituation 4 kennen.")),
   merkeAB("Nicht der Geldfluss entscheidet über die Seite des Erfolgskontos, sondern die Wirkung auf das Eigenkapital."));
 
 function druckenAB(inhaltEl) {
@@ -707,22 +710,22 @@ const OKT = [ // gedachter Beispielmonat September (Quartalsende); ziel = richti
   { text: "Quartalszinsen den Kontokorrentkonten belastet", gegen: "Debitoren", betrag: 150000, seite: "H", ziel: "Zinserträge" },
   { text: "Kontoführungsentgelte für das Quartal belastet", gegen: "Kreditoren", betrag: 80000, seite: "H", ziel: "Provisionserträge" },
   { text: "Provisionen für Wertpapierorders belastet", gegen: "Kreditoren", betrag: 20500, seite: "H", ziel: "Provisionserträge" },
-  { text: "Miete für die Praxisräume im Haus erhalten", gegen: "Kreditoren", betrag: 1600, seite: "H", ziel: "Mieterträge" }
+  { text: "Miete für die Praxisräume vom Girokonto des Mieters abgebucht", gegen: "Kreditoren", betrag: 1600, seite: "H", ziel: "Mieterträge" }
 ];
 ST.push({ id: "vorstand", kurz: "1 Wozu Erfolgskonten?", bauen(sek) {
   sek.append(stationsKopf("Station 1", "Wozu Erfolgskonten?", 6),
-    el("p", null, "Eine Idee liegt nahe: Was das Eigenkapital verändert, bucht man direkt auf das Eigenkapitalkonto. So sähe das Konto der Minibank für einen Monat aus, wenn sie es so machen würde (Beispiel September):"),
-    tkonto("Eigenkapital (Beispiel September)", OKT.filter(o => o.seite === "S").map(o => ({ bez: o.gegen, betrag: o.betrag })), OKT.filter(o => o.seite === "H").map(o => ({ bez: o.gegen, betrag: o.betrag }))));
+    el("p", null, "Eine Idee liegt nahe: Was das Eigenkapital verändert, bucht man direkt auf das Eigenkapitalkonto. So sähe das Eigenkapitalkonto der Minibank im September aus:"),
+    tkonto("Eigenkapital (Beispiel September)", OKT.filter(o => o.seite === "S").map(o => ({ bez: o.gegen, betrag: o.betrag })), [{ bez: "Anfangsbestand 01.09.", betrag: 5245000 }].concat(OKT.filter(o => o.seite === "H").map(o => ({ bez: o.gegen, betrag: o.betrag })))));
   const t1 = el("div"); sek.append(t1);
-  t1.append(mc({ titel: "Der Vorstand fragt nach", text: "„Wie viel haben wir im September an Zinsen eingenommen?“ Können Sie das am Konto ablesen?" }, [
-    { t: "Ja, das sind alle Beträge mit dem Gegenkonto Kreditoren im Haben.", fb: "Über Kreditoren laufen auch Entgelte und Provisionen. Das Gegenkonto sagt nur, wie bezahlt wurde, nicht wofür." },
-    { t: "Ja, das ist die Summe der Habenseite.", fb: "Im Haben stehen alle Vorgänge, die das Eigenkapital mehren, also auch Entgelte, Provisionen und Mieten." },
-    { t: "Nein. Das Konto zeigt nur, dass das Eigenkapital gestiegen oder gesunken ist, nicht wodurch.", richtig: true, fb: "Genau. Für die Frage des Vorstands fehlt die Information, wofür gebucht wurde." }
+  t1.append(mc({ titel: "Der Vorstand fragt nach", text: "„Wie hoch sind die Zinserträge, die wir im September gebucht haben?“ Können Sie das am Konto ablesen?" }, [
+    { t: "Ja, das sind alle Beträge mit dem Gegenkonto Kreditoren im Haben.", fb: "Über Kreditoren laufen auch Entgelte und Provisionen. Das Gegenkonto sagt nur, wie der Vorgang abgewickelt wurde, nicht wofür." },
+    { t: "Ja, das ist die Summe der Habenseite ohne den Anfangsbestand.", fb: "Im Haben stehen alle Vorgänge, die das Eigenkapital mehren, also auch Entgelte, Provisionen und Mieten." },
+    { t: "Nein. Am Konto stehen neben dem Anfangsbestand nur Beträge und Gegenkonten. Welche Beträge Zinsen sind, lässt sich nicht erkennen.", richtig: true, fb: "Genau. Das Gegenkonto verrät nur, wie der Vorgang abgewickelt wurde. Ob es um Zinsen, Entgelte, Provisionen oder Miete ging, geht aus dem Konto nicht hervor – und genau das will der Vorstand wissen." }
   ], () => { t2.hidden = false; }));
   const t2 = el("div", { hidden: true }); sek.append(t2);
   const auf = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Für jede Art ein eigenes Konto"),
     el("p", null, "Deshalb führt die Minibank für jede Aufwands- und Ertragsart ein eigenes Unterkonto des Eigenkapitals. Ordnen Sie jede Buchung aus dem Beispiel ihrem Unterkonto zu."));
-  const tab = el("table", { class: "diagnose" }, el("thead", null, el("tr", null, el("th", null, "Vorgang"), el("th", null, "Betrag"), el("th", null, "Unterkonto"))));
+  const tab = el("table", { class: "diagnose s1tab" }, el("thead", null, el("tr", null, el("th", null, "Vorgang"), el("th", null, "Betrag"), el("th", null, "Unterkonto"))));
   const tb = el("tbody"); tab.append(tb);
   const sels = OKT.map(o => {
     const s = el("select", { "aria-label": "Unterkonto für " + o.text }, el("option", { value: "" }, "…"), Object.keys(ERFOLG).map(k => el("option", { value: k }, kontoName(k))));
@@ -731,8 +734,8 @@ ST.push({ id: "vorstand", kurz: "1 Wozu Erfolgskonten?", bauen(sek) {
   const fb = box();
   const t3 = el("div", { hidden: true });
   auf.append(el("div", { class: "tabelle-wrap" }, tab), el("div", { class: "aktionen" }, knopf("Prüfen", () => {
-    let f = 0; sels.forEach((s, i) => { const ok = s.value === OKT[i].ziel; s.classList.toggle("falsch", !ok); if (!ok) f++; });
-    if (f) Lernelement.rueckmeldung(fb, "fehler", f + (f === 1 ? " Zuordnung passt" : " Zuordnungen passen") + " noch nicht (rot). Fragen Sie: Nimmt die Bank hier eine Leistung in Anspruch oder erbringt sie selbst eine, und welche?");
+    let f = 0; sels.forEach((s, i) => { const ok = s.value === OKT[i].ziel; s.classList.toggle("nok", !ok); s.classList.toggle("ok", ok); if (!ok) f++; });
+    if (f) Lernelement.rueckmeldung(fb, "fehler", f + (f === 1 ? " Zuordnung passt" : " Zuordnungen passen") + " noch nicht (rot). Fragen Sie: Verbraucht die Bank hier Leistungen anderer oder erbringt sie selbst eine, und welche?");
     else { Lernelement.rueckmeldung(fb, "gut", "Alle Buchungen liegen auf dem passenden Unterkonto."); sels.forEach(s => s.disabled = true); t3.hidden = false; }
   })), fb);
   t2.append(auf, t3);
@@ -741,14 +744,14 @@ ST.push({ id: "vorstand", kurz: "1 Wozu Erfolgskonten?", bauen(sek) {
   const fb2 = box();
   const t4 = el("div", { hidden: true });
   t3.append(el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Noch einmal die Frage des Vorstands"),
-    el("p", null, "Wie viel hat die Minibank im September an Zinsen eingenommen?"),
+    el("p", null, "Wie hoch sind die Zinserträge, die die Minibank im September gebucht hat?"),
     el("div", { class: "buchungszeile" }, zi, el("span", null, "€"), knopf("Prüfen", () => {
       const v = zahlLesen(zi.value);
       if (Math.abs(v - summe("Zinserträge")) < 0.01) { Lernelement.rueckmeldung(fb2, "gut", "Mit einem eigenen Konto ist das eine einfache Summe: " + geld(summe("Zinserträge")) + "."); t4.hidden = false; }
       else Lernelement.rueckmeldung(fb2, "fehler", "Addieren Sie alles, was Sie dem Konto Zinserträge zugeordnet haben.");
     })), fb2), t4);
-  t4.append(mc({ titel: "Und die zweite Frage", text: "„Womit verdienen wir mehr: mit dem Zinsgeschäft oder mit Entgelten und Provisionen?“" }, [
-    { t: "Mit dem Zinsgeschäft", richtig: true, fb: "Zinserträge " + geld(summe("Zinserträge")) + ", Provisionserträge " + geld(summe("Provisionserträge")) + ". Ob das Zinsgeschäft auch dann vorn liegt, wenn man die Zinsen abzieht, die die Bank selbst zahlt, zeigt erst der Jahresabschluss: Die Sparzinsen werden einmal im Jahr gutgeschrieben." },
+  t4.append(mc({ titel: "Und die zweite Frage", text: "„Womit erzielen wir höhere Erträge: mit dem Zinsgeschäft oder mit Entgelten und Provisionen?“" }, [
+    { t: "Mit dem Zinsgeschäft", richtig: true, fb: "Zinserträge " + geld(summe("Zinserträge")) + ", Provisionserträge " + geld(summe("Provisionserträge")) + ". Was davon nach den Zinsen bleibt, die die Bank selbst für Einlagen aufwendet, zeigt sich erst, wenn auch die Zinsaufwendungen gebucht sind." },
     { t: "Mit Entgelten und Provisionen", fb: "Vergleichen Sie die Summen der Konten Zinserträge und Provisionserträge." }
   ], () => { lt.hidden = false; }));
   const lt = el("div", { hidden: true }); t4.append(lt);
@@ -756,8 +759,8 @@ ST.push({ id: "vorstand", kurz: "1 Wozu Erfolgskonten?", bauen(sek) {
     "Vorgänge, die das Eigenkapital verändern, bucht die Bank nicht direkt auf dem ", { opts: ["Eigenkapitalkonto", "Kreditorenkonto", "Bundesbankkonto"], r: 0 },
     ", sondern auf Erfolgskonten. Sie sind ", { opts: ["Unterkonten des Eigenkapitals", "eigene Bilanzposten", "Unterkonten der Kreditoren"], r: 0 },
     ". Für jede Aufwands- und Ertragsart gibt es ", { opts: ["ein eigenes Konto", "eine eigene Bilanz", "ein gemeinsames Sammelkonto"], r: 0 },
-    ". Auf Aufwandskonten bucht die Bank Leistungen anderer, die sie ", { opts: ["in Anspruch nimmt", "erbringt", "verkauft"], r: 0 },
-    ", auf Ertragskonten Leistungen, die sie selbst ", { opts: ["erbringt", "bezahlt", "verbraucht"], r: 0 },
+    ". Auf Aufwandskonten bucht die Bank Leistungen anderer, die sie ", { opts: ["verbraucht", "erbringt", "verkauft"], r: 0 },
+    ", auf Ertragskonten Leistungen, die sie selbst ", { opts: ["erbringt", "bezahlt", "kauft"], r: 0 },
     ". So zeigt die Buchführung, womit die Bank verdient."
   ], () => { Schrift.setzen("erfolgskonten"); S.erledigt("vorstand"); lt.append(S.weiterKnopf(0, "Weiter zu 2: Soll oder Haben? →")); }));
 }});
@@ -797,7 +800,7 @@ function hinweisFuer(f, s, h) {
   if (f.tipps._neutral && !istErfolg(s) && !istErfolg(h)) return f.tipps._neutral;
   const erfolgRichtig = [f.soll, f.haben].find(istErfolg);
   if (erfolgRichtig && ![s, h].includes(erfolgRichtig)) {
-    if ([s, h].some(istErfolg)) return "Ein Erfolgskonto ist richtig gedacht, aber nicht dieses. Nimmt die Bank eine Leistung in Anspruch oder erbringt sie selbst eine, und welche?";
+    if ([s, h].some(istErfolg)) return "Ein Erfolgskonto ist richtig gedacht, aber nicht dieses. Verbraucht die Bank Leistungen anderer oder erbringt sie selbst eine, und welche?";
     return "Verändert dieser Vorgang das Eigenkapital? Dann brauchen Sie ein Erfolgskonto.";
   }
   if (!erfolgRichtig && [s, h].some(istErfolg)) return "Hier verändert sich das Eigenkapital nicht. Ein Erfolgskonto passt deshalb nicht.";
@@ -812,44 +815,50 @@ ST.push({ id: "buchen", kurz: "3 Belege buchen", bauen(sek) {
         el("li", null, "Bestandskonto: Mehrung oder Minderung? Erfolgskonto: Sinkt oder steigt das Eigenkapital?"),
         el("li", null, "Auf welcher Seite wird gebucht?"))));
   const zaehler = el("p", { class: "zaehler", "aria-live": "polite" }); const zone = el("div"); sek.append(zaehler, zone);
-  let i = 0, ersterV = 0;
+  let i = 0, ersterV = 0; const geloest = new Set(), versuche = {};
   function zeige() {
     zone.innerHTML = ""; zaehler.textContent = "Beleg " + (i + 1) + " von " + FAELLE.length + " · beim ersten Versuch richtig: " + ersterV;
-    const f = FAELLE[i]; const form = buchungsFormular(KONTENLISTE); const fb = box(); let v = 0;
+    const f = FAELLE[i]; const form = buchungsFormular(KONTENLISTE); const fb = box();
     const auf = el("div", { class: "aufgabe" }, el("p", { class: "titel" }, "Beleg " + (i + 1)), belegKarte({ beleg: f.beleg, text: f.text, betrag: f.betrag }), form.zeile);
     const weiter = el("div", { class: "weiter", hidden: true }, knopf(i < FAELLE.length - 1 ? "Nächster Beleg →" : "Fertig →", () => { i++; if (i < FAELLE.length) zeige(); else ende(); }));
-    auf.append(el("div", { class: "aktionen" }, knopf("Prüfen", () => {
-      const s = form.s.value, h = form.h.value, b = zahlLesen(form.b.value); v++;
+    const zurueck = i > 0 ? knopf("← Vorheriger Beleg", () => { i--; zeige(); }, "zweit") : null;
+    auf.append(el("div", { class: "aktionen" }, zurueck, knopf("Prüfen", () => {
+      const s = form.s.value, h = form.h.value, b = zahlLesen(form.b.value); versuche[i] = (versuche[i] || 0) + 1; const v = versuche[i];
       const ok = s === f.soll && h === f.haben && Math.abs(b - f.betrag) < 0.005;
-      if (ok) { if (v === 1) ersterV++; form.sperren(); Lernelement.rueckmeldung(fb, "gut", "<strong>" + buchungssatz(f.soll, f.haben, f.betrag) + "</strong><br>" + f.begr); weiter.hidden = false; zaehler.textContent = "Beleg " + (i + 1) + " von " + FAELLE.length + " · beim ersten Versuch richtig: " + ersterV; return; }
+      if (ok) { if (v === 1 && !geloest.has(i)) ersterV++; geloest.add(i); form.sperren(); Lernelement.rueckmeldung(fb, "gut", "<strong>" + buchungssatz(f.soll, f.haben, f.betrag) + "</strong><br>" + f.begr); weiter.hidden = false; zaehler.textContent = "Beleg " + (i + 1) + " von " + FAELLE.length + " · beim ersten Versuch richtig: " + ersterV; return; }
       let t = (s === f.soll && h === f.haben) ? (isNaN(b) ? "Tragen Sie den Betrag ein." : "Die Konten stimmen, der Betrag nicht. Schauen Sie noch einmal auf den Beleg.") : hinweisFuer(f, s, h);
       if (v >= 2 && !(s === f.soll && h === f.haben)) { t += "<br><br><strong>So geht es:</strong> " + buchungssatz(f.soll, f.haben, f.betrag) + ". " + f.begr; }
       Lernelement.rueckmeldung(fb, "fehler", t);
     })), fb, weiter);
     zone.append(auf);
+    if (geloest.has(i)) {   // schon gebuchter Beleg: Lösung zeigen, weiterblättern möglich
+      form.s.value = f.soll; form.h.value = f.haben; form.b.value = geld(f.betrag).replace(" €", ""); form.sperren();
+      auf.querySelectorAll(".aktionen button:not(.zweit)").forEach(b => b.hidden = true);
+      Lernelement.rueckmeldung(fb, "gut", "<strong>" + buchungssatz(f.soll, f.haben, f.betrag) + "</strong><br>" + f.begr); weiter.hidden = false;
+    }
   }
   function ende() { zone.innerHTML = ""; zaehler.textContent = "Alle sechs Belege gebucht · beim ersten Versuch richtig: " + ersterV + " von 6"; Schrift.setzen("buchen"); S.erledigt("buchen");
-    zone.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Geschafft"), el("p", null, "Ihre sechs Buchungen stehen als Musterbuchungen in der Informationsschrift. Fassen Sie jetzt die Regel zusammen, nach der Sie gebucht haben.")), S.weiterKnopf(2, "Weiter zu 4: Regel festhalten →")); }
+    zone.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Geschafft"), el("p", null, "Ihre sechs Buchungen stehen als Musterbuchungen in der Informationsschrift. Fassen Sie jetzt die Regel zusammen, nach der Sie gebucht haben.")), el("div", { class: "aktionen" }, knopf("← Belege noch einmal ansehen", () => { i = FAELLE.length - 1; zeige(); }, "zweit")), S.weiterKnopf(2, "Weiter zu 4: Regel festhalten →")); }
   zeige();
 }});
 
 /* ---------- Station 4: Regel festhalten ---------- */
 ST.push({ id: "regelfest", kurz: "4 Regel festhalten", bauen(sek) {
   sek.append(stationsKopf("Station 4", "Regel festhalten", 2),
-    el("p", null, "Sie haben sechs Belege gebucht. Halten Sie jetzt in drei Schritten fest, wie Sie dabei vorgegangen sind. Das ist die Regel, mit der Sie gleich die Belege der Mappe buchen."));
+    el("p", null, "Sie haben sechs Belege gebucht. Halten Sie jetzt in drei Schritten fest, wie Sie dabei vorgegangen sind. Das ist die Regel für die Prüfbuchungen (Arbeitsauftrag 4)."));
   const b = el("div", { hidden: true }), c = el("div", { hidden: true }), d = el("div", { hidden: true });
   sek.append(lueckentext("Schritt 1: Verändert der Beleg das Eigenkapital?", [
-    "Nimmt die Bank eine Leistung anderer in Anspruch, ohne dass ein Vermögenswert bleibt, entsteht ", { opts: ["Aufwand", "Ertrag", "kein Erfolg"], r: 0 },
+    "Verbraucht die Bank Leistungen anderer, entsteht ", { opts: ["Aufwand", "Ertrag", "kein Erfolg"], r: 0 },
     ". Erbringt sie selbst eine Leistung, entsteht ", { opts: ["Ertrag", "Aufwand", "kein Erfolg"], r: 0 },
-    ". Bleibt ein Gegenwert im Vermögen, wie beim Drucker, ist der Beleg ", { opts: ["erfolgsneutral", "Aufwand", "Ertrag"], r: 0 }, "."
-  ], () => b.hidden = false), b, c, d);
+    ". Kauft sie etwas, das im Vermögen bleibt, wie den Firmenwagen, verleiht Geld, nimmt Geld an oder erhält es zurück, ist der Beleg ", { opts: ["erfolgsneutral", "Aufwand", "Ertrag"], r: 0 }, "."
+  ], () => b.hidden = false, undefined, "Richtig. Weiter mit dem nächsten Schritt."), b, c, d);
   b.append(lueckentext("Schritt 2: Welches Erfolgskonto?", [
     "Für jede Aufwands- und Ertragsart gibt es ein eigenes Konto. Zinsen, die die Bank für ein Sparguthaben zahlt, bucht sie auf ", { opts: ["Zinsaufwendungen", "Zinserträge", "Spareinlagen"], r: 0 },
     ", Entgelte für die Kontoführung auf ", { opts: ["Provisionserträge", "Zinserträge", "Kreditoren"], r: 0 }, "."
-  ], () => c.hidden = false));
+  ], () => c.hidden = false, undefined, "Richtig. Weiter mit dem nächsten Schritt."));
   c.append(lueckentext("Schritt 3: Welche Seite?", [
     "Aufwand steht im ", { opts: ["Soll", "Haben"], r: 0 }, ", Ertrag im ", { opts: ["Haben", "Soll"], r: 0 },
-    ". Das Gegenkonto ist ein ", { opts: ["Bestandskonto", "Erfolgskonto"], r: 0 }, " und zeigt, wie bezahlt wird. Über die Seite des Erfolgskontos entscheidet also nicht der Geldfluss, sondern die ",
+    ". Das Gegenkonto ist ein ", { opts: ["Bestandskonto", "Erfolgskonto"], r: 0 }, " und zeigt, wie der Vorgang abgewickelt wird: bar, über die Bundesbank oder über ein Kundenkonto. Über die Seite des Erfolgskontos entscheidet also nicht der Geldfluss, sondern die ",
     { opts: ["Wirkung auf das Eigenkapital", "Höhe des Betrags", "Zahlungsart"], r: 0 }, "."
   ], () => { Schrift.setzen("dreischritt"); S.erledigt("regelfest");
     d.hidden = false; d.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Ihre Informationsschrift ist vollständig"), el("p", null, "Laden Sie sie jetzt als PDF herunter.")), S.weiterKnopf(3, "Zur Informationsschrift →")); }));
@@ -859,7 +868,7 @@ ST.push({ id: "regelfest", kurz: "4 Regel festhalten", bauen(sek) {
 let bereich;
 ST.push({ id: "schrift", kurz: "📄 Informationsschrift", bauen(sek) {
   sek.append(stationsKopf("", "Informationsschrift herunterladen", 1),
-    el("p", null, "Hier sehen Sie, was Sie in den Stationen 1 bis 4 erarbeitet haben. Speichern Sie die Informationsschrift als PDF in Ihrer LF-7-Ablage. Sie brauchen sie für die Prüfbuchungen in AA 4 und für die Hausaufgabe."));
+    el("p", null, "Hier sehen Sie, was Sie in den Stationen 1 bis 4 erarbeitet haben. Speichern Sie die Informationsschrift als PDF in Ihrer LF-7-Ablage. Sie brauchen sie für die Prüfbuchungen (Arbeitsauftrag 4) und für die Hausaufgabe."));
   const stand = el("p", { class: "zaehler", "aria-live": "polite" });
   const vorschau = el("div");
   bereich = el("div", null, stand, el("div", { class: "aktionen" }, knopf("📄 Informationsschrift als PDF speichern", () => druckenAB(Schrift.bauen()), "gruen")), pdfHinweis(), vorschau);
@@ -896,7 +905,7 @@ ST.push({ id: "vertiefung", kurz: "+ Fehler finden", bauen(sek) {
     };
     auf.append(el("div", { class: "aktionen" }, knopf("Richtig", () => urteil(true), "zweit urteil"), knopf("Falsch", () => urteil(false), "zweit urteil")), grund, fb);
     if (!f.richtig) grund.append(mc({ titel: "Ihre Begründung", text: "Was ist an der Buchung falsch?" }, f.gruende.map(g => ({ t: g.t, richtig: !!g.r, fb: g.r ? f.fb : "Das ist nicht der Fehler. Prüfen Sie Konto für Konto." })), fertig));
-    function fertig() { geloest++; if (geloest === FEHLER.length) { S.erledigt("vertiefung"); sek.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Stark"), el("p", null, "Sie haben alle Buchungen von Frau Jasper beurteilt. Typische Fehler sind vertauschte Seiten bei Erträgen und Aufwand für Dinge, die gar nicht verbraucht werden."))); } }
+    function fertig() { geloest++; if (geloest === FEHLER.length) { S.erledigt("vertiefung"); sek.append(el("div", { class: "merke" }, el("p", { class: "titel" }, "Alle Buchungen beurteilt"), el("p", null, "Sie haben alle Buchungen von Frau Jasper beurteilt. Typische Fehler sind vertauschte Seiten bei Erträgen und Aufwand für Dinge, die gar nicht verbraucht werden."))); } }
     sek.append(auf);
   });
 }});
